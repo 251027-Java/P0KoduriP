@@ -6,7 +6,7 @@ public class Main {
         IO.println("Application starting...");
 
         game = new Game();
-        game.Play();
+        game.Play(true);
 
         IO.println("Application closing.");
     }

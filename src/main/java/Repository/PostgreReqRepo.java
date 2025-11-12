@@ -4,7 +4,7 @@ import java.sql.*;
 
 public class PostgreReqRepo implements IRequirementRepository{
     private final Connection conn;
-    public PostgreReqRepo(Connection connection){
+    public PostgreReqRepo(Connection connection, boolean resetSchema){
         conn = connection;
 
         boolean successfulInit = false;
