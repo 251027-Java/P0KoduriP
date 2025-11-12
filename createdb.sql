@@ -1,0 +1,1 @@
+CREATE DATABASE clashofclans1d;

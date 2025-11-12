@@ -1,0 +1,36 @@
+import Repository.PostgreDataRepo;
+import Repository.PostgreReqRepo;
+import Service.DataService;
+import Service.RequirementService;
+import Util.ConnectionUtil;
+
+import java.sql.Connection;
+
+public class Game {
+    private static boolean gameStarted = false;
+
+    private DataService dataServ;
+    private RequirementService reqServ;
+
+    public void Play(){
+        if (gameStarted) return;
+        gameStarted = true;
+        IO.println("Game starting...");
+
+        try {
+            Connection conn = ConnectionUtil.GetConnection();
+
+            dataServ = new DataService(new PostgreDataRepo(conn));
+            reqServ = new RequirementService(new PostgreReqRepo(conn));
+
+            PlayGame();
+        } finally {
+            ConnectionUtil.CloseConnection();
+        }
+
+        IO.println("Game closing.");
+    }
+    private void PlayGame(){
+
+    }
+}
