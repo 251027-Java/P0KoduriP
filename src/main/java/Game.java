@@ -3,6 +3,7 @@ import Repository.PostgreReqRepo;
 import Service.DataService;
 import Service.RequirementService;
 import Util.ConnectionUtil;
+import Util.UserInput;
 
 import java.sql.Connection;
 
@@ -26,6 +27,7 @@ public class Game {
             PlayGame();
         } finally {
             ConnectionUtil.CloseConnection();
+            UserInput.CloseScanner();
         }
 
         IO.println("Game closing.");
