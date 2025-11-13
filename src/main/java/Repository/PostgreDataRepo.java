@@ -80,7 +80,7 @@ public class PostgreDataRepo implements IDataRepository{
                         profid int,
                         buildid int,
                         level int not null check (level >= 1),
-                        buildingid int,
+                        buildingid int not null,
                         CONSTRAINT fk_buildingid
                             FOREIGN KEY (buildingid)
                             REFERENCES req.building (buildingid)
