@@ -17,7 +17,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                 String sql = """
                     CREATE SCHEMA IF NOT EXISTS req;
                     
-                    DROP SCHEMA IF EXISTS public;
+                    DROP SCHEMA IF EXISTS public CASCADE;
                     
                     CREATE TABLE IF NOT EXISTS req.resource (
                         rid int primary key,
