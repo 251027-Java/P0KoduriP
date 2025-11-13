@@ -21,7 +21,8 @@ public class PostgreDataRepo implements IDataRepository{
                         cardno bigint primary key check (cardno >= 0 and cardno <= 9999999999999999),
                         expmo int not null check (expmo >= 1 and expmo <= 12),
                         expyr int not null,
-                        pin int not null check (pin >= 0 and pin <= 999)
+                        pin int not null check (pin >= 0 and pin <= 999),
+                        balance int not null check (balance >= 0)
                     );
                     
                     CREATE TABLE IF NOT EXISTS data.profile (
