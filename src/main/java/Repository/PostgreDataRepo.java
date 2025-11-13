@@ -22,7 +22,7 @@ public class PostgreDataRepo implements IDataRepository{
                         expmo int not null check (expmo >= 1 and expmo <= 12),
                         expyr int not null,
                         pin int not null check (pin >= 0 and pin <= 999),
-                        balance int not null check (balance >= 0)
+                        balance int not null default 0 check (balance >= 0)
                     );
                     
                     CREATE TABLE IF NOT EXISTS data.profile (
