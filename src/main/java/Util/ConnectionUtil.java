@@ -5,7 +5,7 @@ import java.sql.*;
 public class ConnectionUtil {
     private static final String Postgre_URL = "jdbc:postgresql://localhost:5432/clashofclans1d";
     private static final String Postgre_User = "postgres";
-    private static final String Postgre_PW = "mysecretpassword";
+    private static final String Postgre_PW = "p0";
     private static Connection connection;
 
     public static Connection GetConnection(){

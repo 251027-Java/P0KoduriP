@@ -13,7 +13,7 @@ public class Game {
     private DataService dataServ;
     private RequirementService reqServ;
 
-    public void Play(boolean resetSchema){
+    public void Play(boolean resetReq, boolean resetData){
         if (gameStarted) return;
         gameStarted = true;
         IO.println("Game starting...");
@@ -21,8 +21,8 @@ public class Game {
         try {
             Connection conn = ConnectionUtil.GetConnection();
 
-            dataServ = new DataService(new PostgreDataRepo(conn));
-            reqServ = new RequirementService(new PostgreReqRepo(conn, resetSchema));
+            dataServ = new DataService(new PostgreDataRepo(conn, resetData));
+            reqServ = new RequirementService(new PostgreReqRepo(conn, resetReq));
 
             PlayGame();
         } finally {
