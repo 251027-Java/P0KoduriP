@@ -131,6 +131,8 @@ public class PostgreDataRepo implements IDataRepository{
                 stmt.execute(sql);
                 IO.println("Successful creation (if necessary) of Postgre Data Schema.");
                 successfulInit = true;
+
+                if (resetSchema) FillTables();
             } catch (Exception e1) {
                 IO.println("Failed to create Postgre Data Schema (if necessary). Trying again...");
                 try {
@@ -163,5 +165,8 @@ public class PostgreDataRepo implements IDataRepository{
                 }
             }
         }
+    }
+    private void FillTables(){
+
     }
 }
