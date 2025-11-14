@@ -24,6 +24,7 @@ public class Game {
             dataServ = new DataService(new PostgreDataRepo(conn, resetData));
             reqServ = new RequirementService(new PostgreReqRepo(conn, resetReq));
 
+            Setup();
             PlayGame();
         } finally {
             ConnectionUtil.CloseConnection();
@@ -31,6 +32,9 @@ public class Game {
         }
 
         IO.println("Game closing.");
+    }
+    private void Setup(){
+
     }
     private void PlayGame(){
 
