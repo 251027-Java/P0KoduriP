@@ -134,11 +134,11 @@ public class PostgreDataRepo implements IDataRepository{
 
                 if (resetSchema) FillTables();
             } catch (Exception e1) {
-                IO.println("Failed to create Postgre Data Schema (if necessary). Trying again...");
+                IO.println("Failed to create Postgre Data Schema (if necessary). Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
-                    IO.println("Sleep to create Postgre Data Schema (if necessary) likely interrupted.");
+                    IO.println("Sleep to create Postgre Data Schema (if necessary) likely interrupted: " + e2);
                 }
             }
         }
@@ -157,11 +157,11 @@ public class PostgreDataRepo implements IDataRepository{
                 IO.println("Successful drop (if exists) of Postgre Data Schema.");
                 successfulDrop = true;
             } catch (Exception e1) {
-                IO.println("Failed to drop Postgre Data Schema (if exists). Trying again...");
+                IO.println("Failed to drop Postgre Data Schema (if exists). Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
-                    IO.println("Sleep to drop Postgre Data Schema (if exists) likely interrupted.");
+                    IO.println("Sleep to drop Postgre Data Schema (if exists) likely interrupted: " + e2);
                 }
             }
         }

@@ -183,11 +183,11 @@ public class PostgreReqRepo implements IRequirementRepository{
 
                 if (resetSchema) FillTables();
             } catch (Exception e1) {
-                IO.println("Failed to create Postgre Req Schema (if necessary). Trying again...");
+                IO.println("Failed to create Postgre Req Schema (if necessary). Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
-                    IO.println("Sleep to create Postgre Req Schema (if necessary) likely interrupted.");
+                    IO.println("Sleep to create Postgre Req Schema (if necessary) likely interrupted: " + e2);
                 }
             }
         }
@@ -231,11 +231,11 @@ public class PostgreReqRepo implements IRequirementRepository{
                 IO.println("Successful drop (if exists) of Postgre Req Schema.");
                 successfulDrop = true;
             } catch (Exception e1) {
-                IO.println("Failed to drop Postgre Req Schema (if exists). Trying again...");
+                IO.println("Failed to drop Postgre Req Schema (if exists). Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
-                    IO.println("Sleep to drop Postgre Req Schema (if exists) likely interrupted.");
+                    IO.println("Sleep to drop Postgre Req Schema (if exists) likely interrupted: " + e2);
                 }
             }
         }
