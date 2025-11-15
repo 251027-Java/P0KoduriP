@@ -38,6 +38,6 @@ public class PaymentAccount {
 
     public void GemPurchase(int usd){
         int gems = GemShop.GetGems(usd);
-        Withdraw(usd);
+        if (gems > 0) Withdraw(usd);
     }
 }
