@@ -16,8 +16,10 @@ public abstract class Building {
     protected int level;
     protected Upgrade upgrade;
 
+    public boolean upgrading;
+
     public Building(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth,
-                    int buildingLevel, Upgrade upgradeInfo){
+                    int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading){
         buildingid = buildingID;
         btid = buildingTypeID;
         name = buildingName;
@@ -27,6 +29,7 @@ public abstract class Building {
         maxHP = maxHealth;
         level = buildingLevel;
         upgrade = upgradeInfo;
+        upgrading = currentlyUpgrading;
     }
 
     public int level(){

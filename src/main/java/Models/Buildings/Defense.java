@@ -10,8 +10,8 @@ public class Defense extends Building {
     private int dmg;
 
     public Defense(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth,
-                   int buildingLevel, Upgrade upgradeInfo, boolean canAttackAir, float bHitSpeed, int bRange, int damage){
-        super(buildingID, buildingTypeID, buildingName, resourceID, resourceName, maxHealth, buildingLevel, upgradeInfo);
+                   int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading, boolean canAttackAir, float bHitSpeed, int bRange, int damage){
+        super(buildingID, buildingTypeID, buildingName, resourceID, resourceName, maxHealth, buildingLevel, upgradeInfo, currentlyUpgrading);
         atkair = canAttackAir;
         hitspeed = bHitSpeed;
         range = bRange;

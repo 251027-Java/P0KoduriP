@@ -25,9 +25,10 @@ public class TroopFactory {
     private int level;
 
     private Upgrade upgrade;
+    private boolean upgrading;
 
     public TroopFactory(String tName, int tID, int tCost, int tSpace, int tSpeed, int tRange, float tHitSpeed, boolean groundTroop,
-                 boolean canAttackAir, int damage, int health, int barracksUnlockLevel, int currentLevel, Upgrade upgradeInfo){
+                 boolean canAttackAir, int damage, int health, int barracksUnlockLevel, int currentLevel, Upgrade upgradeInfo, boolean currentlyUpgrading){
         troopid = tID;
         name = tName;
         cost = tCost;
@@ -47,6 +48,7 @@ public class TroopFactory {
         level = currentLevel;
 
         upgrade = upgradeInfo;
+        upgrading = currentlyUpgrading;
     }
 
     public void UpgradeTroop(int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){
