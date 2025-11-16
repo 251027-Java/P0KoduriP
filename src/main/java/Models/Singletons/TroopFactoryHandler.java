@@ -2,6 +2,7 @@ package Models.Singletons;
 
 import Models.Troop;
 import Models.TroopFactory;
+import Util.Models.Upgrade;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,10 +20,8 @@ public class TroopFactoryHandler {
         factories.put(troopName, factory);
     }
 
-    public void UpgradeTroop(String troop, int newLevel, int newDmg, int newHP, int newUpCost, int newUpDays, int newUpHours,
-                             int newUpMinutes, int newUpSeconds, boolean isNowMaxLevel){
-        factories.get(troop).UpgradeTroop(newLevel, newDmg, newHP, newUpCost, newUpDays, newUpHours, newUpMinutes,
-                newUpSeconds, isNowMaxLevel);
+    public void UpgradeTroop(String troop, int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){
+        factories.get(troop).UpgradeTroop(newLevel, newDmg, newHP, newUpgradeInfo);
     }
 
     public List<String> GetAvailableTroops(int highestBarracksLevel){

@@ -8,14 +8,14 @@ public class Troop {
 
     private int speed;
     private int range;
-    private int hitspeed;
+    private float hitspeed;
     private boolean ground;
     private boolean atkair;
 
     private int dmg;
     private int hp;
 
-    public Troop(String tName, int tID, int tCost, int tSpace, int tSpeed, int tRange, int tHitSpeed, boolean groundTroop,
+    public Troop(String tName, int tID, int tCost, int tSpace, int tSpeed, int tRange, float tHitSpeed, boolean groundTroop,
                  boolean canAttackAir, int damage, int health){
         troopid = tID;
         name = tName;

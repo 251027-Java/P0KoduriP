@@ -53,9 +53,17 @@ public class PostgreDataRepo implements IDataRepository{
                         lastcollected timestamp not null default current_timestamp,
                         gems int not null default 0 check (gems >= 0),
                         trophies int not null default 0 check (trophies >= 0),
+                        upgradingtroopid int,
+                        troopupgradestarttime timestamp,
+                        troopupgradefinishtime timestamp,
                         CONSTRAINT fk_profid
                             FOREIGN KEY (profid)
                             REFERENCES data.profile (profid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT fk_upgradingtroopid
+                            FOREIGN KEY (upgradingtroopid)
+                            REFERENCES data.playertrooplvls (troopid)
                             ON DELETE CASCADE
                             ON UPDATE CASCADE
                     );
@@ -82,6 +90,8 @@ public class PostgreDataRepo implements IDataRepository{
                         buildid int,
                         level int not null check (level >= 1),
                         buildingid int not null,
+                        upgradestarttime timestamp,
+                        upgradefinishtime timestamp,
                         CONSTRAINT fk_buildingid
                             FOREIGN KEY (buildingid)
                             REFERENCES req.building (buildingid)
