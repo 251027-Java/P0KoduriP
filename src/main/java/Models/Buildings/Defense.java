@@ -13,7 +13,7 @@ public class Defense extends Building {
                    int buildingLevel, Upgrade upgradeInfo, boolean canAttackAir, float bHitSpeed, int bRange, int damage){
         super(buildingID, buildingTypeID, buildingName, resourceID, resourceName, maxHealth, buildingLevel, upgradeInfo);
         atkair = canAttackAir;
-        hitspeed = bHitSpeed
+        hitspeed = bHitSpeed;
         range = bRange;
         dmg = damage;
     }
