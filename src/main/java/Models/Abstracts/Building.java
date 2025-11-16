@@ -10,8 +10,9 @@ public abstract class Building {
 
     protected int hp;
     protected int maxHP;
+    protected int level;
 
-    public Building(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth){
+    public Building(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth, int buildingLevel){
         buildingid = buildingID;
         btid = buildingTypeID;
         name = buildingName;
@@ -19,6 +20,7 @@ public abstract class Building {
         resname = resourceName;
         hp = maxHealth;
         maxHP = maxHealth;
+        level = buildingLevel;
     }
 
     public int hp(){
@@ -28,10 +30,9 @@ public abstract class Building {
         return maxHP;
     }
 
-    // returns true if still not broken after damage taken, false if destroyed
+    // returns true if destroyed after damage taken, false if still not broken
     public boolean takeDamage(int dmg){
         hp -= dmg;
-        if (hp < 0) hp = 0;
         return hp <= 0;
     }
 
