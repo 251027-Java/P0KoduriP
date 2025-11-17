@@ -14,7 +14,7 @@ public class TroopFactoryHandler {
     private TroopFactoryHandler() {}
     public static TroopFactoryHandler getInstance() {return handler;}
 
-    private final Map<String, TroopFactory> factories = new HashMap<>();
+    private Map<String, TroopFactory> factories = new HashMap<>();
 
     public void AddFactory(String troopName, TroopFactory factory){
         factories.put(troopName, factory);
@@ -37,5 +37,9 @@ public class TroopFactoryHandler {
     }
     public List<Troop> CreateTroops(String troop, int numTroops){
         return factories.get(troop).CreateTroops(numTroops);
+    }
+
+    public void Reset(){
+        factories = new HashMap<>();
     }
 }
