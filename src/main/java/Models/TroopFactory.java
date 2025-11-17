@@ -20,7 +20,7 @@ public class TroopFactory {
     private int dmg;
     private int hp;
 
-    private int raxUnlockLevel;
+    private final int raxUnlockLevel;
 
     private int level;
 
