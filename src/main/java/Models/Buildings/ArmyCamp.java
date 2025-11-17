@@ -12,11 +12,11 @@ public class ArmyCamp extends Building {
     }
 
     @Override
-    public void upgrade(){
+    public void upgrade() {
         super.upgrade();
     }
 
-    public int GetSpace(){
+    public int GetMaxSpace(){
         return maxspace;
     }
 }

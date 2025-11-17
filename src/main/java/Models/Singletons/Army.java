@@ -22,7 +22,7 @@ public class Army {
 
     public void AddArmyCamp(ArmyCamp camp){
         camps.add(camp);
-        UpdateSpace(camp.GetSpace());
+        UpdateSpace(camp.GetMaxSpace());
     }
     public void UpdateSpace(int oldSpace, int newSpace){
         UpdateSpace(newSpace - oldSpace);
