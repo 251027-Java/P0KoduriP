@@ -40,4 +40,15 @@ public class PaymentAccount {
         int gems = GemShop.GetGems(usd);
         if (gems > 0) Withdraw(usd);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true; // Reference equality
+        if (obj == null) return false; // Null check
+        if (getClass() != obj.getClass()) return false; // Type check
+
+        PaymentAccount o = (PaymentAccount) obj;
+
+        return cardno==o.cardno && expmonth==o.expmonth && expyr==o.expyr;
+    }
 }

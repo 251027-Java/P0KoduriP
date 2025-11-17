@@ -21,7 +21,7 @@ public class TroopFactoryHandler {
     }
 
     public void UpgradeTroop(String troop, int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){
-        factories.get(troop).UpgradeTroop(newLevel, newDmg, newHP, newUpgradeInfo);
+        factories.get(troop).SetTroopInfo(newLevel, newDmg, newHP, newUpgradeInfo);
     }
 
     public List<String> GetAvailableTroops(int highestBarracksLevel){

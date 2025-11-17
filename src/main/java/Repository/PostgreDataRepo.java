@@ -127,7 +127,7 @@ public class PostgreDataRepo implements IDataRepository{
                     CREATE TABLE IF NOT EXISTS data.playerbuildinglineup (
                         profid int,
                         buildid int,
-                        pos int not null check (pos >= 0 and pos < 10), -- 10 is hardcoded since ik max 10 buildings
+                        pos int not null check (pos >= 0 and pos < 12), -- 12 is hardcoded since ik max 10 buildings
                         CONSTRAINT fk_profbuildid
                             FOREIGN KEY (profid, buildid)
                             REFERENCES data.playerbuildinglvls (profid, buildid)
