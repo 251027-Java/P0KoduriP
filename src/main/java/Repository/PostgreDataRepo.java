@@ -27,7 +27,7 @@ public class PostgreDataRepo implements IDataRepository{
                     
                     CREATE TABLE IF NOT EXISTS data.profile (
                         profid int primary key,
-                        name varchar(50) not null,
+                        profname varchar(50) not null,
                         datecreated timestamp not null default current_timestamp
                     );
                     

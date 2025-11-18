@@ -21,7 +21,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     
                     CREATE TABLE IF NOT EXISTS req.resource (
                         rid int primary key,
-                        name varchar(20) not null
+                        rname varchar(20) not null
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.buildingtype (
@@ -31,7 +31,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     
                     CREATE TABLE IF NOT EXISTS req.building (
                         buildingid int primary key,
-                        name varchar(20) not null,
+                        buildingname varchar(20) not null,
                         btid int not null,
                         rid int not null,
                         CONSTRAINT fk_btid
@@ -63,7 +63,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     
                     CREATE TABLE IF NOT EXISTS req.troop (
                         troopid int primary key,
-                        name varchar(20) not null,
+                        troopname varchar(20) not null,
                         cost int not null check (cost >= 0),
                         space int not null check (space >= 0),
                         speed int not null check (speed >= 0),
