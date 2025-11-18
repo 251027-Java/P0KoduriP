@@ -65,4 +65,8 @@ public class TroopFactory {
         for (int i = 0; i < numTroops; i++) troops.add(CreateTroop());
         return troops;
     }
+
+    public String GetTroopName(){
+        return name;
+    }
 }

@@ -43,6 +43,10 @@ public class TroopFactoryHandler {
         return factories.get(troopID).CreateTroops(numTroops);
     }
 
+    public String GetTroopName(int troopID){
+        return factories.get(troopID).GetTroopName();
+    }
+
     public void Reset(){
         factories = new HashMap<>();
     }
