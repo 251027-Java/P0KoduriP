@@ -110,6 +110,21 @@ public class PostgreReqRepo implements IRequirementRepository{
                         maxcap int not null check (maxcap >= 0)
                     );
                     
+                    CREATE TABLE IF NOT EXISTS req.resheld (
+                        buildingid int primary key,
+                        rid int not null,
+                        CONSTRAINT fk_buildingid
+                            FOREIGN KEY (buildingid)
+                            REFERENCES req.building (buildingid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT fk_rid
+                            FOREIGN KEY (rid)
+                            REFERENCES req.resource (rid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    );
+                    
                     CREATE TABLE IF NOT EXISTS req.cannon (
                         canlevel int primary key check (canlevel >= 1),
                         dmg int not null check (dmg >= 0),
@@ -345,6 +360,12 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (8, 10500, 500000),
                     (9, 12600, 750000),
                     (10, 15000, 1000000);
+                    
+                    INSERT INTO req.resheld VALUES
+                    (4, 1),
+                    (5, 2),
+                    (6, 1),
+                    (7, 2);
                     
                     INSERT INTO req.cannon VALUES
                     (1, 60, 4000),

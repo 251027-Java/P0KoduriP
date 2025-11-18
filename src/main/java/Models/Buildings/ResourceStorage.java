@@ -15,11 +15,11 @@ public class ResourceStorage extends Building {
     }
 
     @Override
-    public void upgrade(){
-        super.upgrade();
+    public void Upgrade(){
+        super.Upgrade();
     }
 
-    public int GetResourceGeneratedID(){
+    public int GetResourceStoredID(){
         return resStoreID;
     }
 

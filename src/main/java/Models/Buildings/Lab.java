@@ -12,8 +12,8 @@ public class Lab extends Building {
     }
 
     @Override
-    public void upgrade(){
-        super.upgrade();
+    public void Upgrade(){
+        super.Upgrade();
     }
 
     public int GetMaxTroopLevel(){

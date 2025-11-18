@@ -16,4 +16,13 @@ public class GemValues {
     public static int GetResource(){
         return resource;
     }
+    public static int TimeToGems(int days, int hours, int minutes, int seconds){
+        int totalMins = days*24*60 + hours*60 + minutes;
+        if (totalMins <= 0) return 0;
+        return (totalMins-1)/time + 1;
+    }
+    public static int ResourceToGems(int resourceAmount){
+        if (resourceAmount == 0) return 0;
+        return (resourceAmount-1)/resource + 1;
+    }
 }

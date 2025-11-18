@@ -32,28 +32,35 @@ public abstract class Building {
         upgrading = currentlyUpgrading;
     }
 
-    public int level(){
+    public int GetLevel(){
         return level;
     }
 
-    public int hp(){
+    public int GetHP(){
         return hp;
     }
-    public int maxHP(){
+    public int GetMaxHP(){
         return maxHP;
     }
 
     // returns true if destroyed after damage taken, false if still not broken
-    public boolean takeDamage(int dmg){
+    public boolean TakeDamage(int dmg){
         hp -= dmg;
         return hp <= 0;
     }
 
-    public void rebuild(){
+    public void Rebuild(){
         hp = maxHP;
     }
 
-    public void upgrade(){
+    public void Upgrade(){
 
+    }
+
+    public void SetUpgrading(boolean currentlyUpgrading){
+        upgrading = currentlyUpgrading;
+    }
+    public boolean GetUpgrading(){
+        return upgrading;
     }
 }

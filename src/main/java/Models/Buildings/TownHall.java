@@ -13,8 +13,8 @@ public class TownHall extends Building {
     }
 
     @Override
-    public void upgrade(){
-        super.upgrade();
+    public void Upgrade(){
+        super.Upgrade();
     }
 
     public int GetNextCost(){
