@@ -29,9 +29,12 @@ public class ResourceCollector extends Building {
     public int GetResourceGenerationRate(){
         return genRate;
     }
+    public int GetMaxCapacity(){
+        return ResourceManager.MaxCollectionHours * genRate;
+    }
     public int CollectResources(float hours) {
         int newAmount = amount + (int) (hours * genRate);
-        int maxCollectorCapacity = ResourceManager.MaxCollectionHours * genRate;
+        int maxCollectorCapacity = GetMaxCapacity();
 
         if (newAmount > maxCollectorCapacity) newAmount = maxCollectorCapacity;
         amount = 0;
