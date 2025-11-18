@@ -1,12 +1,12 @@
-import java.sql.*;
+package Application;
 
 public class Main {
-    public static Game game;
     public static void main(String[] args){
         IO.println("Application starting...");
 
-        game = new Game();
-        game.Play(true, true);
+        boolean resetRequirements = true;
+        boolean resetData = true;
+        Game.getInstance().Play(resetRequirements, resetData);
 
         IO.println("Application closing.");
     }

@@ -1,5 +1,6 @@
 package Models.Singletons;
 
+import Application.Game;
 import Models.Troop;
 import Models.TroopFactory;
 import Util.Models.Upgrade;
@@ -17,11 +18,9 @@ public class TroopFactoryHandler {
     private Map<Integer, TroopFactory> factories = new HashMap<>();
 
     public static void GenerateFactories(){
-
-    }
-
-    public void AddFactory(TroopFactory factory){
-        factories.put(factory.GetTroopID(), factory);
+        for (TroopFactory factory : Game.getInstance().GetRequirementService().GetTroopFactories()){
+            handler.factories.put(factory.GetTroopID(), factory);
+        }
     }
 
     public void UpgradeTroop(int troopID, int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){

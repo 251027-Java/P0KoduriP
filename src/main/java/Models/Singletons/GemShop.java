@@ -1,19 +1,17 @@
 package Models.Singletons;
 
+import Application.Game;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class GemShop {
     private GemShop(){}
 
-    private static Map<Integer, Integer> shop = new HashMap<>(); //USD -> gems
+    private static Map<Integer, Integer> shop; //USD -> gems
 
     public static void GenerateValues(){
-
-    }
-
-    public void AddOption(int usd, int gems){
-        shop.put(usd, gems);
+        shop = Game.getInstance().GetRequirementService().GetGemShopOptions();
     }
 
     public static Map<Integer, Integer> GetAvailableOptions(int usd){

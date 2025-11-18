@@ -1,13 +1,18 @@
 package Models.Singletons;
 
+import Application.Game;
+import Service.RequirementService;
+
 public class GemValues {
     private GemValues(){}
 
     private static int time; //minutes per gem
-    private static int resource;
+    private static int resource; //resource amount per gem
 
     public static void GenerateValues(){
-
+        RequirementService serv = Game.getInstance().GetRequirementService();
+        time = serv.GetValuePerGem("time");
+        resource = serv.GetValuePerGem("resource");
     }
 
     public static int GetTime(){

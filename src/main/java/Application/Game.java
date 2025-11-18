@@ -1,7 +1,6 @@
-import Models.Singletons.GemShop;
-import Models.Singletons.GemValues;
-import Models.Singletons.ResourceManager;
-import Models.Singletons.TroopFactoryHandler;
+package Application;
+
+import Models.Singletons.*;
 import Repository.PostgreDataRepo;
 import Repository.PostgreReqRepo;
 import Service.DataService;
@@ -12,7 +11,11 @@ import Util.UserInput;
 import java.sql.Connection;
 
 public class Game {
-    private static boolean gameStarted = false;
+    private final static Game game = new Game();
+    private Game() {}
+    public static Game getInstance() {return game;}
+
+    private boolean gameStarted = false;
 
     private DataService dataServ;
     private RequirementService reqServ;
@@ -46,4 +49,12 @@ public class Game {
     private void PlayGame(){
 
     }
+
+    public RequirementService GetRequirementService(){
+        return reqServ;
+    }
+    public DataService GetDataService(){
+        return dataServ;
+    }
 }
+

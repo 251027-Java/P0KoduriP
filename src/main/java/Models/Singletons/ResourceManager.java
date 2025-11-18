@@ -1,5 +1,6 @@
 package Models.Singletons;
 
+import Application.Game;
 import Models.Buildings.ResourceCollector;
 import Models.Buildings.ResourceStorage;
 
@@ -26,7 +27,9 @@ public class ResourceManager {
     private final Map<Integer, Integer> storagesHP = new HashMap<>(); //resourceID -> total storage HP
 
     public static void GenerateValues(){
-
+        for (Map.Entry<Integer, String> resources : Game.getInstance().GetRequirementService().GetResourceInfo().entrySet()){
+            resourceManager.AddResource(resources.getKey(), resources.getValue());
+        }
     }
 
     public void AddResource(int resourceID, String resourceName){
