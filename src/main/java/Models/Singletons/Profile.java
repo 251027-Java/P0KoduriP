@@ -40,6 +40,9 @@ public class Profile {
     public List<PaymentAccount> GetPaymentOptions(){
         return new ArrayList<>(payOptions);
     }
+    public void LoadPaymentOptions(){
+
+    }
     public int GetID(){
         return id;
     }

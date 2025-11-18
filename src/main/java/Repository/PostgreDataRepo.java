@@ -1,5 +1,7 @@
 package Repository;
 
+import Application.Game;
+
 import java.sql.*;
 
 public class PostgreDataRepo implements IDataRepository{
@@ -55,7 +57,6 @@ public class PostgreDataRepo implements IDataRepository{
                         gems int not null default 0 check (gems >= 0),
                         trophies int not null default 0 check (trophies >= 0),
                         upgradingtroopid int, -- unknown value of upgradingTroopID if troop isn't upgrading
-                        troopupgradestarttime timestamp,
                         troopupgradefinishtime timestamp,
                         CONSTRAINT fk_profid
                             FOREIGN KEY (profid)
@@ -91,7 +92,6 @@ public class PostgreDataRepo implements IDataRepository{
                         buildid int,
                         level int not null check (level >= 1),
                         buildingid int not null,
-                        upgradestarttime timestamp,
                         upgradefinishtime timestamp,
                         CONSTRAINT fk_buildingid
                             FOREIGN KEY (buildingid)
@@ -179,5 +179,54 @@ public class PostgreDataRepo implements IDataRepository{
     }
     private void FillTables(){
 
+    }
+
+    @Override
+    public float GetHoursSinceLastAttacked(int profID) {
+        float hours = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastattacked)) / 3600 AS hrs FROM data.player where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    hours = (float) Math.min(24 * Game.MaxDaysTracked, rs.getDouble("hrs"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get hours since last attacked. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return hours;
+    }
+    @Override
+    public float GetHoursSinceLastCollectedResources(int profID) {
+        float hours = 0;
+
+        try {
+            String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastcollected)) / 3600 AS hrs FROM data.player where profid=?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, profID);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()){
+                hours = (float) Math.min(24 * Game.MaxDaysTracked, rs.getDouble("hrs"));
+            }
+        } catch (Exception e) {
+            IO.println("Failed to get hours since last collected resources. Try again: " + e);
+        }
+
+        return hours;
     }
 }
