@@ -1,6 +1,8 @@
 package Util.Models;
 
 public class Upgrade {
+    private final String name;
+
     private final int upCost;
     private final int upDays;
     private final int upHours;
@@ -11,8 +13,10 @@ public class Upgrade {
     private final String upResource;
     private final int nextLevel;
 
-    public Upgrade(int upgradeCost, int upgradeDays, int upgradeHours, int upgradeMinutes, int upgradeSeconds, boolean isMaxLevel,
+    public Upgrade(String nameOfUpgrade, int upgradeCost, int upgradeDays, int upgradeHours, int upgradeMinutes, int upgradeSeconds, boolean isMaxLevel,
                    String upgradingResource, int nextUpgradeLevel){
+        name = nameOfUpgrade;
+
         upCost = upgradeCost;
         upDays = upgradeDays;
         upHours = upgradeHours;
@@ -32,9 +36,9 @@ public class Upgrade {
     public boolean IsMaxLevel() { return maxLevel; }
 
     public String UpgradeInfo(){
-        if (maxLevel) return "Already at max level!";
+        if (maxLevel) return String.format("%s is at max level!", name);
 
-        String info = String.format("Upgrade to Level %d\n:%d %s\n", nextLevel, upCost, upResource);
+        String info = String.format("Upgrade %s to Level %d\n:%d %s\n", name, nextLevel, upCost, upResource);
         if (upDays > 0) info += upDays + " Days, ";
         if (upHours > 0) info += upHours + " Hours, ";
         if (upMinutes > 0) info += upMinutes + " Minutes, ";

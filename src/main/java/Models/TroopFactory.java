@@ -50,7 +50,7 @@ public class TroopFactory {
     }
 
     // returns whether this troop is available for the current highest barracks level
-    public boolean troopIsAvailable(int highestBarracksLevel){
+    public boolean TroopIsAvailable(int highestBarracksLevel){
         return highestBarracksLevel >= raxUnlockLevel;
     }
 
@@ -68,5 +68,15 @@ public class TroopFactory {
     }
     public int GetTroopID(){
         return troopid;
+    }
+    public int GetLevel(){
+        return level;
+    }
+
+    public void SetUpgradingInfo(Upgrade newUpgradeInfo){
+        upgrade = newUpgradeInfo;
+    }
+    public Upgrade GetUpgradingInfo(){
+        return upgrade;
     }
 }

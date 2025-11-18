@@ -41,7 +41,7 @@ public class TroopFactoryHandler {
     public List<Integer> GetAvailableTroops(int highestBarracksLevel){
         List<Integer> troops = new ArrayList<>();
         for (Map.Entry<Integer, TroopFactory> e : factories.entrySet()){
-            if (e.getValue().troopIsAvailable(highestBarracksLevel)) troops.add(e.getKey());
+            if (e.getValue().TroopIsAvailable(highestBarracksLevel)) troops.add(e.getKey());
         }
         return troops;
     }

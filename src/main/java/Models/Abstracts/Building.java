@@ -56,6 +56,12 @@ public abstract class Building {
     public void Upgrade(){
 
     }
+    public void SetUpgradingInfo(Upgrade newUpgradeInfo){
+        upgrade = newUpgradeInfo;
+    }
+    public Upgrade GetUpgradingInfo(){
+        return upgrade;
+    }
 
     public void SetUpgrading(boolean currentlyUpgrading){
         upgrading = currentlyUpgrading;
