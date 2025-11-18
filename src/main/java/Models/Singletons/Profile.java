@@ -16,15 +16,19 @@ public class Profile {
 
     private int trophies;
     private int gems;
+    private boolean troopIsUpgrading;
+    private int upgradingTroop;
 
     public void SetProfile(int profID, String profName){
         id = profID;
         name = profName;
         payOptions = new ArrayList<>();
     }
-    public void FillProfile(int profTrophies, int profGems){
+    public void FillProfile(int profTrophies, int profGems, boolean troopCurrentlyUpgrading, int upgradingTroopID){ //unknown value of upgradingTroopID if troop isn't upgrading
         trophies = profTrophies;
         gems = profGems;
+        upgradingTroop = upgradingTroopID;
+        troopIsUpgrading = troopCurrentlyUpgrading;
     }
 
     public void AddPaymentOption(PaymentAccount paymentAccount){
@@ -46,8 +50,21 @@ public class Profile {
     public int GetTrophies(){
         return trophies;
     }
-    public int GetGames(){
+    public int GetGems(){
         return gems;
+    }
+    public void UpgradeTroop(int upgradingTroopID){
+        troopIsUpgrading = true;
+        upgradingTroop = upgradingTroopID;
+    }
+    public void FinishUpgradingTroop(){
+        troopIsUpgrading = false;
+    }
+    public boolean GetTroopIsCurrentlyUpgrading(){
+        return troopIsUpgrading;
+    }
+    public int GetUpgradingTroop(){ //unknown value if troop is actually not upgrading
+        return upgradingTroop;
     }
 
     public void ChangeTrophies(int changeTrophies){

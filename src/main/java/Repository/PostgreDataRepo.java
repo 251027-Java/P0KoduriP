@@ -54,7 +54,7 @@ public class PostgreDataRepo implements IDataRepository{
                         lastcollected timestamp not null default current_timestamp,
                         gems int not null default 0 check (gems >= 0),
                         trophies int not null default 0 check (trophies >= 0),
-                        upgradingtroopid int,
+                        upgradingtroopid int, -- unknown value of upgradingTroopID if troop isn't upgrading
                         troopupgradestarttime timestamp,
                         troopupgradefinishtime timestamp,
                         CONSTRAINT fk_profid

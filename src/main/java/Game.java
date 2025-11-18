@@ -1,6 +1,7 @@
 import Models.Singletons.GemShop;
 import Models.Singletons.GemValues;
 import Models.Singletons.ResourceManager;
+import Models.Singletons.TroopFactoryHandler;
 import Repository.PostgreDataRepo;
 import Repository.PostgreReqRepo;
 import Service.DataService;
@@ -40,6 +41,7 @@ public class Game {
         ResourceManager.GenerateValues();
         GemShop.GenerateValues();
         GemValues.GenerateValues();
+        TroopFactoryHandler.GenerateFactories();
     }
     private void PlayGame(){
 
