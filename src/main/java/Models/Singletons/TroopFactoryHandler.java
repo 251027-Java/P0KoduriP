@@ -20,12 +20,22 @@ public class TroopFactoryHandler {
 
     }
 
-    public void AddFactory(int troopID, TroopFactory factory){
-        factories.put(troopID, factory);
+    public void AddFactory(TroopFactory factory){
+        factories.put(factory.GetTroopID(), factory);
     }
 
     public void UpgradeTroop(int troopID, int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){
         factories.get(troopID).SetTroopInfo(newLevel, newDmg, newHP, newUpgradeInfo);
+        Profile.getInstance().UpgradeTroop(troopID);
+    }
+    public void FinishUpgradingTroop(){
+        Profile.getInstance().FinishUpgradingTroop();
+    }
+    public boolean GetTroopIsCurrentlyUpgrading(){
+        return Profile.getInstance().GetTroopIsCurrentlyUpgrading();
+    }
+    public int GetUpgradingTroop(){ //unknown value if troop is actually not upgrading
+        return Profile.getInstance().GetUpgradingTroop();
     }
 
     public List<Integer> GetAvailableTroops(int highestBarracksLevel){

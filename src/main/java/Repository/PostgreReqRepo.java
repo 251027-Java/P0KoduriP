@@ -1,7 +1,12 @@
 package Repository;
 
+import Models.Singletons.TroopFactoryHandler;
+import Models.TroopFactory;
+
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PostgreReqRepo implements IRequirementRepository{
@@ -71,7 +76,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                         space int not null check (space >= 0),
                         speed int not null check (speed >= 0),
                         range int not null check (range >= 0),
-                        raxunlock int not null unique check (raxunlock >= 0),
+                        raxunlock int not null check (raxunlock >= 0),
                         hitspeed float not null check (hitspeed > 0),
                         ground boolean not null default true,
                         atkair boolean not null default false
@@ -590,5 +595,38 @@ public class PostgreReqRepo implements IRequirementRepository{
         }
 
         return options;
+    }
+
+    @Override
+    public List<TroopFactory> GetTroopFactories() {
+        List<TroopFactory> factories = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.troop";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    TroopFactory factory = new TroopFactory(rs.getString("troopname"), rs.getInt("troopid"),
+                            rs.getInt("cost"), rs.getInt("space"), rs.getInt("speed"),
+                            rs.getInt("range"), rs.getFloat("hitspeed"), rs.getBoolean("ground"),
+                            rs.getBoolean("atkair"), rs.getInt("raxunlock"));
+                    factories.add(factory);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troop factories. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return factories;
     }
 }

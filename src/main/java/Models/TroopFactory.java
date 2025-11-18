@@ -66,4 +66,7 @@ public class TroopFactory {
     public String GetTroopName(){
         return name;
     }
+    public int GetTroopID(){
+        return troopid;
+    }
 }
