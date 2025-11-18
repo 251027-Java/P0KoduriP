@@ -5,8 +5,11 @@ public class Main {
         IO.println("Application starting...");
 
         boolean resetRequirements = true;
+
         boolean resetData = true;
-        Game.getInstance().Play(resetRequirements, resetData);
+        boolean confirmResetData = true;
+
+        Game.getInstance().Play(resetRequirements, resetData && confirmResetData);
 
         IO.println("Application closing.");
     }
