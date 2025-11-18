@@ -14,29 +14,33 @@ public class TroopFactoryHandler {
     private TroopFactoryHandler() {}
     public static TroopFactoryHandler getInstance() {return handler;}
 
-    private Map<String, TroopFactory> factories = new HashMap<>();
+    private Map<Integer, TroopFactory> factories = new HashMap<>();
 
-    public void AddFactory(String troopName, TroopFactory factory){
-        factories.put(troopName, factory);
+    public static void GenerateFactories(){
+
     }
 
-    public void UpgradeTroop(String troop, int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){
-        factories.get(troop).SetTroopInfo(newLevel, newDmg, newHP, newUpgradeInfo);
+    public void AddFactory(int troopID, TroopFactory factory){
+        factories.put(troopID, factory);
     }
 
-    public List<String> GetAvailableTroops(int highestBarracksLevel){
-        List<String> troops = new ArrayList<>();
-        for (Map.Entry<String, TroopFactory> e : factories.entrySet()){
+    public void UpgradeTroop(int troopID, int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){
+        factories.get(troopID).SetTroopInfo(newLevel, newDmg, newHP, newUpgradeInfo);
+    }
+
+    public List<Integer> GetAvailableTroops(int highestBarracksLevel){
+        List<Integer> troops = new ArrayList<>();
+        for (Map.Entry<Integer, TroopFactory> e : factories.entrySet()){
             if (e.getValue().troopIsAvailable(highestBarracksLevel)) troops.add(e.getKey());
         }
         return troops;
     }
 
-    public Troop CreateTroop(String troop){
-        return factories.get(troop).CreateTroop();
+    public Troop CreateTroop(Integer troopID){
+        return factories.get(troopID).CreateTroop();
     }
-    public List<Troop> CreateTroops(String troop, int numTroops){
-        return factories.get(troop).CreateTroops(numTroops);
+    public List<Troop> CreateTroops(Integer troopID, int numTroops){
+        return factories.get(troopID).CreateTroops(numTroops);
     }
 
     public void Reset(){
