@@ -1,9 +1,12 @@
 package Repository;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostgreReqRepo implements IRequirementRepository{
     private final Connection conn;
+
     public PostgreReqRepo(Connection connection, boolean resetSchema){
         conn = connection;
 
@@ -499,5 +502,93 @@ public class PostgreReqRepo implements IRequirementRepository{
                 }
             }
         }
+    }
+
+    @Override
+    public Map<Integer, String> GetResourceInfo() {
+        Map<Integer, String> resources = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resource";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    resources.put(rs.getInt("rid"), rs.getString("rname"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get resource info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return resources;
+    }
+
+    @Override
+    public int GetValuePerGem(String value) {
+        int val = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.gemvalue where type=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, value);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    val = rs.getInt("val");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get gem value (" + value + ") info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return val;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetGemShopOptions() {
+        Map<Integer, Integer> options = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.gemshop";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    options.put(rs.getInt("usd"), rs.getInt("numgems"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get gem shop info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return options;
     }
 }

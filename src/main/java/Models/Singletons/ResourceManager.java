@@ -25,6 +25,10 @@ public class ResourceManager {
     private final Map<Integer, Integer> collectorsHP = new HashMap<>(); //resourceID -> total collector HP
     private final Map<Integer, Integer> storagesHP = new HashMap<>(); //resourceID -> total storage HP
 
+    public static void GenerateValues(){
+
+    }
+
     public void AddResource(int resourceID, String resourceName){
         resourceNames.put(resourceID, resourceName);
         resources.put(resourceID, 0);

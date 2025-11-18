@@ -6,10 +6,14 @@ import java.util.Map;
 public class GemShop {
     private GemShop(){}
 
-    private static Map<Integer, Integer> shop = new HashMap<>();
+    private static Map<Integer, Integer> shop = new HashMap<>(); //USD -> gems
 
     public static void GenerateValues(){
 
+    }
+
+    public void AddOption(int usd, int gems){
+        shop.put(usd, gems);
     }
 
     public static Map<Integer, Integer> GetAvailableOptions(int usd){

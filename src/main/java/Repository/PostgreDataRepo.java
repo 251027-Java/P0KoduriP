@@ -4,6 +4,7 @@ import java.sql.*;
 
 public class PostgreDataRepo implements IDataRepository{
     private final Connection conn;
+
     public PostgreDataRepo(Connection connection, boolean resetSchema){
         conn = connection;
 

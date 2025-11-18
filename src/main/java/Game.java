@@ -1,3 +1,6 @@
+import Models.Singletons.GemShop;
+import Models.Singletons.GemValues;
+import Models.Singletons.ResourceManager;
 import Repository.PostgreDataRepo;
 import Repository.PostgreReqRepo;
 import Service.DataService;
@@ -34,7 +37,9 @@ public class Game {
         IO.println("Game closing.");
     }
     private void Setup(){
-
+        ResourceManager.GenerateValues();
+        GemShop.GenerateValues();
+        GemValues.GenerateValues();
     }
     private void PlayGame(){
 
