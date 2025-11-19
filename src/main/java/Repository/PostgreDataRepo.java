@@ -3,6 +3,13 @@ package Repository;
 import Application.Game;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import Models.PaymentAccount;
+import Models.TroopFactory;
 import Util.Time;
 
 public class PostgreDataRepo implements IDataRepository{
@@ -411,6 +418,68 @@ public class PostgreDataRepo implements IDataRepository{
         }
 
         return remaining;
+    }
+
+    @Override
+    public List<PaymentAccount> GetPaymentAccounts(int profID) {
+        List<PaymentAccount> accounts = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.cc natural join data.ccprof where profid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    PaymentAccount acct = new PaymentAccount(rs.getLong("cardno"), rs.getInt("expmo"),
+                            rs.getInt("expyr"), rs.getInt("pin"), rs.getInt("balance"));
+                    accounts.add(acct);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get payment accounts. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return accounts;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetUserTroopLevels(int profID) {
+        Map<Integer, Integer> troops = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.playertrooplvls where profid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    troops.put(rs.getInt("troopid"), rs.getInt("level"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get player's troop levels. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return troops;
     }
 
 }

@@ -22,20 +22,21 @@ public class Profile {
     private int upgradingTroop;
 
     public static void LoadProfile(int profID){
-        Service.DataService serv = Game.getInstance().GetDataService();
+        DataService serv = Game.getInstance().GetDataService();
         profile.setProfile(profID, serv.GetPlayerName(profID));
-        profile.fillProfile(serv.GetTrophies(profID), serv.GetGems(profID), serv.GetTroopIsUpgrading(profID), serv.GetUpgradingTroopID(profID));
+        profile.fillProfile(serv.GetTrophies(profID), serv.GetGems(profID),
+                serv.GetTroopIsUpgrading(profID), serv.GetUpgradingTroopID(profID), serv.GetPaymentAccounts(profID));
     }
     private void setProfile(int profID, String profName){
         id = profID;
         name = profName;
-        payOptions = new ArrayList<>();
     }
-    private void fillProfile(int profTrophies, int profGems, boolean troopCurrentlyUpgrading, int upgradingTroopID){ //unknown value of upgradingTroopID if troop isn't upgrading
+    private void fillProfile(int profTrophies, int profGems, boolean troopCurrentlyUpgrading, int upgradingTroopID, List<PaymentAccount> paymentAccounts){ //unknown value of upgradingTroopID if troop isn't upgrading
         trophies = profTrophies;
         gems = profGems;
         upgradingTroop = upgradingTroopID;
         troopIsUpgrading = troopCurrentlyUpgrading;
+        payOptions = paymentAccounts;
     }
 
     public void AddPaymentOption(PaymentAccount paymentAccount){

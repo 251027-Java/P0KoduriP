@@ -2,6 +2,7 @@ package Service;
 
 import Models.TroopFactory;
 import Repository.IRequirementRepository;
+import Util.Models.Upgrade;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,15 @@ public class RequirementService implements IService{
     }
     public List<TroopFactory> GetTroopFactories(){
         return repo.GetTroopFactories();
+    }
+    public int GetTroopDamage(int troopID, int troopLevel){
+        return repo.GetTroopDamage(troopID, troopLevel);
+    }
+    public int GetTroopHP(int troopID, int troopLevel){
+        return repo.GetTroopHP(troopID, troopLevel);
+    }
+    public Upgrade GetUpgradeInfo(int troopID, int troopLevel){
+        return repo.GetUpgradeInfo(troopID, troopLevel);
     }
 
     @Override

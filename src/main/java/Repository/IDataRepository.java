@@ -1,5 +1,10 @@
 package Repository;
 
+import Models.PaymentAccount;
+
+import java.util.List;
+import java.util.Map;
+
 public interface IDataRepository extends IRepository {
     public float GetHoursSinceLastAttacked(int profID);
     public float GetHoursSinceLastCollectedResources(int profID);
@@ -9,4 +14,6 @@ public interface IDataRepository extends IRepository {
     public boolean GetTroopIsUpgrading(int profID);
     public int GetUpgradingTroopID(int profID);
     public long GetTroopUpgradeTimeRemainingSeconds(int profID);
+    public List<PaymentAccount> GetPaymentAccounts(int profID);
+    public Map<Integer, Integer> GetUserTroopLevels(int profID); // TroopID -> TroopLevel
 }

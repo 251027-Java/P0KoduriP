@@ -1,7 +1,9 @@
 package Repository;
 
+import Models.Singletons.ResourceManager;
 import Models.Singletons.TroopFactoryHandler;
 import Models.TroopFactory;
+import Util.Models.Upgrade;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -628,5 +630,105 @@ public class PostgreReqRepo implements IRequirementRepository{
         }
 
         return factories;
+    }
+
+    @Override
+    public int GetTroopDamage(int troopID, int troopLevel) {
+        int val = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.trooplevels where troopid=? and trooplevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, troopID);
+                stmt.setInt(2, troopLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    val = rs.getInt("dmg");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troopID=" + troopID + ", troopLevel=" + troopLevel +" damage info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return val;
+    }
+
+    @Override
+    public int GetTroopHP(int troopID, int troopLevel) {
+        int val = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.trooplevels where troopid=? and trooplevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, troopID);
+                stmt.setInt(2, troopLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    val = rs.getInt("hp");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troopID=" + troopID + ", troopLevel=" + troopLevel +" HP info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return val;
+    }
+
+    @Override
+    public Upgrade GetUpgradeInfo(int troopID, int troopLevel) {
+        Upgrade up = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.trooplevels where troopid=? and trooplevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, troopID);
+                stmt.setInt(2, troopLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                String name = TroopFactoryHandler.getInstance().GetTroopName(troopID);
+                String upResName = ResourceManager.getInstance().GetResourceName(TroopFactoryHandler.ResourceID);
+                if (rs.next()){
+                    up = new Upgrade(name, rs.getInt("upcost"), rs.getInt("updays"), rs.getInt("uphrs"),
+                            rs.getInt("upmins"), rs.getInt("upsecs"), false, upResName, troopLevel);
+                }
+                else {
+                    up = new Upgrade(name, 0, 0, 0, 0, 0,
+                            true, upResName, troopLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troopID=" + troopID + ", troopLevel=" + troopLevel +" upgrade info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return up;
     }
 }

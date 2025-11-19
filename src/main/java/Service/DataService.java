@@ -1,7 +1,11 @@
 package Service;
 
+import Models.PaymentAccount;
 import Repository.IDataRepository;
 import Repository.IRequirementRepository;
+
+import java.util.List;
+import java.util.Map;
 
 public class DataService implements IService{
     private IDataRepository dRepo;
@@ -35,6 +39,12 @@ public class DataService implements IService{
     }
     public long GetTroopUpgradeTimeRemainingSeconds(int profID){
         return dRepo.GetTroopUpgradeTimeRemainingSeconds(profID);
+    }
+    public List<PaymentAccount> GetPaymentAccounts(int profID){
+        return dRepo.GetPaymentAccounts(profID);
+    }
+    public Map<Integer, Integer> GetUserTroopLevels(int profID){
+        return dRepo.GetUserTroopLevels(profID);
     }
 
     @Override
