@@ -1,5 +1,7 @@
 package Util.Models;
 
+import Util.Time;
+
 public class Upgrade {
     private final String name;
 
@@ -39,11 +41,7 @@ public class Upgrade {
         if (maxLevel) return String.format("%s is at max level!", name);
 
         String info = String.format("Upgrade %s to Level %d\n:%d %s\n", name, nextLevel, upCost, upResource);
-        if (upDays > 0) info += upDays + " Days, ";
-        if (upHours > 0) info += upHours + " Hours, ";
-        if (upMinutes > 0) info += upMinutes + " Minutes, ";
-        if (upSeconds > 0) info += upSeconds + " Seconds, ";
-        return info.substring(0, info.length()-2) + "\n";
+        return info + Time.FormatTime(upDays, upHours, upMinutes, upSeconds) + "\n";
     }
 
     public boolean CanBeUpgraded(int resourceAmount){

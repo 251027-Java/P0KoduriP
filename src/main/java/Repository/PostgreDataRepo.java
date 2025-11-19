@@ -56,8 +56,9 @@ public class PostgreDataRepo implements IDataRepository{
                         lastcollected timestamp not null default current_timestamp,
                         gems int not null default 0 check (gems >= 0),
                         trophies int not null default 0 check (trophies >= 0),
-                        upgradingtroopid int, -- unknown value of upgradingTroopID if troop isn't upgrading
-                        troopupgradefinishtime timestamp,
+                        isupgradingtroop boolean not null default false,
+                        upgradingtroopid int default -1, -- unknown value if troop isn't upgrading
+                        troopupgradefinishtime timestamp default current_timestamp, -- unknown value if troop isn't upgrading
                         CONSTRAINT fk_profid
                             FOREIGN KEY (profid)
                             REFERENCES data.profile (profid)
@@ -92,7 +93,8 @@ public class PostgreDataRepo implements IDataRepository{
                         buildid int,
                         level int not null check (level >= 1),
                         buildingid int not null,
-                        upgradefinishtime timestamp,
+                        isupgrading boolean not null default false,
+                        upgradefinishtime timestamp default current_timestamp, -- unknown timestamp if not upgrading
                         CONSTRAINT fk_buildingid
                             FOREIGN KEY (buildingid)
                             REFERENCES req.building (buildingid)
@@ -229,4 +231,185 @@ public class PostgreDataRepo implements IDataRepository{
 
         return hours;
     }
+
+    @Override
+    public String GetPlayerName(int profID) {
+        String name = "";
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select profname from data.profile where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    name = rs.getString("profname");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get profile name. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return name;
+    }
+
+    @Override
+    public int GetGems(int profID) {
+        int gems = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select gems from data.player where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    gems = rs.getInt("gems");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get profile # gems. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return gems;
+    }
+
+    @Override
+    public int GetTrophies(int profID) {
+        int trophies = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select trophies from data.player where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    trophies = rs.getInt("trophies");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get profile # trophies. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return trophies;
+    }
+
+    @Override
+    public boolean GetTroopIsUpgrading(int profID) {
+        boolean upgrading = false;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select isupgradingtroop from data.player where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    upgrading = rs.getBoolean("isupgradingtroop");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get if troop is upgrading. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return upgrading;
+    }
+
+    @Override
+    public int GetUpgradingTroopID(int profID) {
+        int id = -1;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select upgradingtroopid from data.player where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    id = rs.getInt("upgradingtroopid");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get ID of upgrading troop. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return id;
+    }
+
+    @Override
+    public long GetTroopUpgradeTimeRemainingSeconds(int profID) {
+        long remaining = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select troopupgradefinishtime - NOW() from data.player where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    remaining = Math.max(0, rs.getLong("troopupgradefinishtime") / 1000);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get time remaining of upgrading troop. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return remaining;
+    }
+
 }

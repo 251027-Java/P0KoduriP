@@ -18,6 +18,24 @@ public class DataService implements IService{
     public float GetHoursSinceLastCollectedResources(int profID) {
         return dRepo.GetHoursSinceLastCollectedResources(profID);
     }
+    public String GetPlayerName(int profID){
+        return dRepo.GetPlayerName(profID);
+    }
+    public int GetGems(int profID){
+        return dRepo.GetGems(profID);
+    }
+    public int GetTrophies(int profID){
+        return dRepo.GetTrophies(profID);
+    }
+    public boolean GetTroopIsUpgrading(int profID){
+        return dRepo.GetTroopIsUpgrading(profID);
+    }
+    public int GetUpgradingTroopID(int profID){
+        return dRepo.GetUpgradingTroopID(profID);
+    }
+    public long GetTroopUpgradeTimeRemainingSeconds(int profID){
+        return dRepo.GetTroopUpgradeTimeRemainingSeconds(profID);
+    }
 
     @Override
     public void DropRepo() {

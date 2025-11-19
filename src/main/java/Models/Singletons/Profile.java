@@ -1,6 +1,8 @@
 package Models.Singletons;
 
+import Application.Game;
 import Models.PaymentAccount;
+import Service.DataService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +21,17 @@ public class Profile {
     private boolean troopIsUpgrading;
     private int upgradingTroop;
 
-    public void SetProfile(int profID, String profName){
+    public static void LoadProfile(int profID){
+        Service.DataService serv = Game.getInstance().GetDataService();
+        profile.setProfile(profID, serv.GetPlayerName(profID));
+        profile.fillProfile(serv.GetTrophies(profID), serv.GetGems(profID), serv.GetTroopIsUpgrading(profID), serv.GetUpgradingTroopID(profID));
+    }
+    private void setProfile(int profID, String profName){
         id = profID;
         name = profName;
         payOptions = new ArrayList<>();
     }
-    public void FillProfile(int profTrophies, int profGems, boolean troopCurrentlyUpgrading, int upgradingTroopID){ //unknown value of upgradingTroopID if troop isn't upgrading
+    private void fillProfile(int profTrophies, int profGems, boolean troopCurrentlyUpgrading, int upgradingTroopID){ //unknown value of upgradingTroopID if troop isn't upgrading
         trophies = profTrophies;
         gems = profGems;
         upgradingTroop = upgradingTroopID;
