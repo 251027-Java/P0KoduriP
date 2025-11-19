@@ -36,7 +36,7 @@ public class ResourceManager {
             resourceManager.AddResource(resources.getKey());
         }
 
-        resourceHeld = serv.GetBuildingResourceHeld();
+        resourceHeld = serv.GetBuildingResourcesHeld();
     }
 
     public void AddResource(int resourceID){
