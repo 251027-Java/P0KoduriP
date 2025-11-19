@@ -10,8 +10,8 @@ public class ResourceCollector extends Building {
     int amount;
 
     public ResourceCollector(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth,
-               int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading, int generatedPerHour, int resourceGeneratedID, int resourceAmount){
-        super(buildingID, buildingTypeID, buildingName, resourceID, resourceName, maxHealth, buildingLevel, upgradeInfo, currentlyUpgrading);
+               int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading, int buildID, int generatedPerHour, int resourceGeneratedID, int resourceAmount){
+        super(buildingID, buildingTypeID, buildingName, resourceID, resourceName, maxHealth, buildingLevel, upgradeInfo, currentlyUpgrading, buildID);
         genRate = generatedPerHour;
         resGenID = resourceGeneratedID;
         amount = resourceAmount;

@@ -35,6 +35,9 @@ public class RequirementService implements IService{
     public Upgrade GetUpgradeInfo(int troopID, int troopLevel){
         return repo.GetUpgradeInfo(troopID, troopLevel);
     }
+    public Map<Integer, String> GetBuildingTypes(){
+        return repo.GetBuildingTypes();
+    }
 
     @Override
     public void DropRepo() {

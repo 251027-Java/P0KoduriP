@@ -8,8 +8,8 @@ public class ResourceStorage extends Building {
     int resStoreID;
 
     public ResourceStorage(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth,
-                             int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading, int maxCapacity, int resourceStoredID){
-        super(buildingID, buildingTypeID, buildingName, resourceID, resourceName, maxHealth, buildingLevel, upgradeInfo, currentlyUpgrading);
+                             int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading, int buildID, int maxCapacity, int resourceStoredID){
+        super(buildingID, buildingTypeID, buildingName, resourceID, resourceName, maxHealth, buildingLevel, upgradeInfo, currentlyUpgrading, buildID);
         maxCap = maxCapacity;
         resStoreID = resourceStoredID;
     }

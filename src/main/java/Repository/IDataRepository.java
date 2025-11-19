@@ -1,5 +1,6 @@
 package Repository;
 
+import Models.Abstracts.Building;
 import Models.PaymentAccount;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public interface IDataRepository extends IRepository {
     public long GetTroopUpgradeTimeRemainingSeconds(int profID);
     public List<PaymentAccount> GetPaymentAccounts(int profID);
     public Map<Integer, Integer> GetUserTroopLevels(int profID); // TroopID -> TroopLevel
+    public List<Building> GetUserBuildings(int profID);
 }

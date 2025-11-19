@@ -108,6 +108,11 @@ public class PostgreDataRepo implements IDataRepository{
                             REFERENCES req.building (buildingid)
                             ON DELETE CASCADE
                             ON UPDATE CASCADE,
+                        CONSTRAINT fk_profid
+                            FOREIGN KEY (profid)
+                            REFERENCES data.profile (profid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
                         PRIMARY KEY (buildid, profid)
                     );
                     
@@ -138,7 +143,7 @@ public class PostgreDataRepo implements IDataRepository{
                     CREATE TABLE IF NOT EXISTS data.playerbuildinglineup (
                         profid int,
                         buildid int,
-                        pos int not null check (pos >= 0 and pos < 12), -- 12 is hardcoded since ik max 10 buildings
+                        pos int not null check (pos >= 0 and pos < 12), -- 12 is hardcoded since ik max 12 buildings
                         CONSTRAINT fk_profbuildid
                             FOREIGN KEY (profid, buildid)
                             REFERENCES data.playerbuildinglvls (profid, buildid)

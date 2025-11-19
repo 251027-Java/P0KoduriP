@@ -737,4 +737,33 @@ public class PostgreReqRepo implements IRequirementRepository{
 
         return up;
     }
+
+    @Override
+    public Map<Integer, String> GetBuildingTypes() {
+        Map<Integer, String> types = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.buildingtype";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    types.put(rs.getInt("btid"), rs.getString("type"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get resource info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return types;
+    }
 }

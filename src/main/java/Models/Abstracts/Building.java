@@ -4,6 +4,7 @@ import Util.Models.Upgrade;
 
 public abstract class Building {
     protected int buildingid;
+    protected int buildid;
     protected int btid;
     protected String name;
 
@@ -19,7 +20,7 @@ public abstract class Building {
     public boolean upgrading;
 
     public Building(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth,
-                    int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading){
+                    int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading, int buildID){
         buildingid = buildingID;
         btid = buildingTypeID;
         name = buildingName;
@@ -30,6 +31,7 @@ public abstract class Building {
         level = buildingLevel;
         upgrade = upgradeInfo;
         upgrading = currentlyUpgrading;
+        buildid = buildID;
     }
 
     public int GetLevel(){
@@ -68,5 +70,9 @@ public abstract class Building {
     }
     public boolean GetUpgrading(){
         return upgrading;
+    }
+
+    public int GetBuildID(){
+        return buildid;
     }
 }

@@ -50,6 +50,7 @@ public class Game {
         GemShop.GenerateValues();
         GemValues.GenerateValues();
         TroopFactoryHandler.GenerateFactories(); //ResourceManager values need to be generated first
+        BuildingHandler.GenerateValues();
     }
     private void PlayGame(){
 
