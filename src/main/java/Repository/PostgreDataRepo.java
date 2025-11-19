@@ -3,6 +3,7 @@ package Repository;
 import Application.Game;
 
 import java.sql.*;
+import Util.Time;
 
 public class PostgreDataRepo implements IDataRepository{
     private final Connection conn;
@@ -190,13 +191,13 @@ public class PostgreDataRepo implements IDataRepository{
 
         while (!successfulInit) {
             try {
-                String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastattacked)) / 3600 AS hrs FROM data.player where profid=?;";
+                String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastattacked)) AS secs FROM data.player where profid=?;";
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, profID);
                 ResultSet rs = stmt.executeQuery();
 
                 if (rs.next()){
-                    hours = (float) Math.min(24 * Game.MaxDaysTracked, rs.getDouble("hrs"));
+                    hours = Math.min(24 * Game.MaxDaysTracked, Time.GetTotalDecimalHours(rs.getLong("secs")));
                 }
 
                 successfulInit = true;
@@ -217,13 +218,13 @@ public class PostgreDataRepo implements IDataRepository{
         float hours = 0;
 
         try {
-            String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastcollected)) / 3600 AS hrs FROM data.player where profid=?;";
+            String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastcollected)) AS secs FROM data.player where profid=?;";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, profID);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()){
-                hours = (float) Math.min(24 * Game.MaxDaysTracked, rs.getDouble("hrs"));
+                hours = Math.min(24 * Game.MaxDaysTracked, Time.GetTotalDecimalHours(rs.getLong("secs")));
             }
         } catch (Exception e) {
             IO.println("Failed to get hours since last collected resources. Try again: " + e);
@@ -389,13 +390,13 @@ public class PostgreDataRepo implements IDataRepository{
 
         while (!successfulInit) {
             try {
-                String sql = "select troopupgradefinishtime - NOW() from data.player where profid=?;";
+                String sql = "SELECT EXTRACT(EPOCH FROM (troopupgradefinishtime - NOW()) AS secs FROM data.player where profid=?;";
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, profID);
                 ResultSet rs = stmt.executeQuery();
 
                 if (rs.next()){
-                    remaining = Math.max(0, rs.getLong("troopupgradefinishtime") / 1000);
+                    remaining = Math.max(0, rs.getLong("secs"));
                 }
 
                 successfulInit = true;
