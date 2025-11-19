@@ -708,7 +708,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                 ResultSet rs = stmt.executeQuery();
 
                 String name = TroopFactoryHandler.getInstance().GetTroopName(troopID);
-                String upResName = ResourceManager.getInstance().GetResourceName(TroopFactoryHandler.ResourceID);
+                String upResName = ResourceManager.getInstance().GetResourceName(TroopFactoryHandler.GetResourceID());
                 if (rs.next()){
                     up = new Upgrade(name, rs.getInt("upcost"), rs.getInt("updays"), rs.getInt("uphrs"),
                             rs.getInt("upmins"), rs.getInt("upsecs"), false, upResName, troopLevel);

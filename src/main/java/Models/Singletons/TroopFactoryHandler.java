@@ -13,11 +13,13 @@ import java.util.List;
 import java.util.Map;
 
 public class TroopFactoryHandler {
-    public static final int ResourceID = 2;
-
     private final static TroopFactoryHandler handler = new TroopFactoryHandler();
     private TroopFactoryHandler() {}
     public static TroopFactoryHandler getInstance() {return handler;}
+
+    private static final String resource = "Elixir";
+    private static int resourceID;
+    public static int GetResourceID(){ return resourceID; }
 
     private Map<Integer, TroopFactory> factories = new HashMap<>();
 
@@ -25,6 +27,8 @@ public class TroopFactoryHandler {
         for (TroopFactory factory : Game.getInstance().GetRequirementService().GetTroopFactories()){
             handler.factories.put(factory.GetTroopID(), factory);
         }
+
+        resourceID = ResourceManager.getInstance().GetResourceID(resource);
     }
     public static void LoadTroopInfo(int profID){
         DataService dServ = Game.getInstance().GetDataService();

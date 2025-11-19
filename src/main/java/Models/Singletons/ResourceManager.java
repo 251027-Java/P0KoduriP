@@ -98,6 +98,12 @@ public class ResourceManager {
     public String GetResourceName(int resourceID){
         return resourceNames.get(resourceID);
     }
+    public int GetResourceID(String resourceName){
+        for (Map.Entry<Integer, String> e : resourceNames.entrySet()){
+            if (e.getValue().equals(resourceName)) return e.getKey();
+        }
+        return -1;
+    }
     public int GetResources(int resourceID){
         return resources.get(resourceID);
     }

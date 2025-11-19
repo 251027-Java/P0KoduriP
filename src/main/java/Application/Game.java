@@ -49,7 +49,7 @@ public class Game {
         ResourceManager.GenerateValues();
         GemShop.GenerateValues();
         GemValues.GenerateValues();
-        TroopFactoryHandler.GenerateFactories();
+        TroopFactoryHandler.GenerateFactories(); //ResourceManager values need to be generated first
     }
     private void PlayGame(){
 
