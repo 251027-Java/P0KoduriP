@@ -16,6 +16,9 @@ public class DataService implements IService{
         rRepo = reqRepository;
     }
 
+    public String GetCreationDate(int profID){
+        return dRepo.GetCreationDate(profID);
+    }
     public float GetHoursSinceLastAttacked(int profID) {
         return dRepo.GetHoursSinceLastAttacked(profID);
     }

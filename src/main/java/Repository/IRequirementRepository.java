@@ -14,5 +14,9 @@ public interface IRequirementRepository extends IRepository {
     public int GetTroopDamage(int troopID, int troopLevel);
     public int GetTroopHP(int troopID, int troopLevel);
     public Upgrade GetUpgradeInfo(int troopID, int troopLevel);
-    public Map<Integer, String> GetBuildingTypes();
+    public Map<Integer, Integer> GetBuildingTypes();
+    public Map<Integer, String> GetBuildingTypeNames();
+    public Map<Integer, Integer> GetBuildingPurchaseResources();
+    public Map<Integer, String> GetBuildingNames();
+    public Map<Integer, Integer> GetBuildingResourcesHeld();
 }

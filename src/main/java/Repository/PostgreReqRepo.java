@@ -714,7 +714,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                 ResultSet rs = stmt.executeQuery();
 
                 String name = TroopFactoryHandler.getInstance().GetTroopName(troopID);
-                String upResName = ResourceManager.getInstance().GetResourceName(TroopFactoryHandler.getInstance().GetResourceID(troopID));
+                String upResName = ResourceManager.GetResourceName(TroopFactoryHandler.getInstance().GetResourceID(troopID));
                 if (rs.next()){
                     up = new Upgrade(name, rs.getInt("upcost"), rs.getInt("updays"), rs.getInt("uphrs"),
                             rs.getInt("upmins"), rs.getInt("upsecs"), false, upResName, troopLevel);
@@ -739,23 +739,23 @@ public class PostgreReqRepo implements IRequirementRepository{
     }
 
     @Override
-    public Map<Integer, String> GetBuildingTypes() {
-        Map<Integer, String> types = new HashMap<>();
+    public Map<Integer, Integer> GetBuildingTypes() {
+        Map<Integer, Integer> types = new HashMap<>();
         boolean successfulInit = false;
 
         while (!successfulInit) {
             try {
-                String sql = "select * from req.buildingtype";
+                String sql = "select * from req.building";
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()){
-                    types.put(rs.getInt("btid"), rs.getString("type"));
+                    types.put(rs.getInt("buildingid"), rs.getInt("btid"));
                 }
 
                 successfulInit = true;
             } catch (Exception e1) {
-                IO.println("Failed to get resource info. Trying again...: " + e1);
+                IO.println("Failed to get building type info. Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
@@ -765,5 +765,121 @@ public class PostgreReqRepo implements IRequirementRepository{
         }
 
         return types;
+    }
+
+    @Override
+    public Map<Integer, String> GetBuildingTypeNames() {
+        Map<Integer, String> names = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.buildingtype";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    names.put(rs.getInt("btid"), rs.getString("type"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building type names. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return names;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetBuildingPurchaseResources() {
+        Map<Integer, Integer> resources = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.building";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    resources.put(rs.getInt("buildingid"), rs.getInt("rid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building purchase resource info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return resources;
+    }
+
+    @Override
+    public Map<Integer, String> GetBuildingNames() {
+        Map<Integer, String> names = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.building";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    names.put(rs.getInt("buildingid"), rs.getString("buildingname"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building name info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return names;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetBuildingResourcesHeld() {
+        Map<Integer, Integer> held = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resheld";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    held.put(rs.getInt("buildingid"), rs.getInt("rid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building held resource info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return held;
     }
 }

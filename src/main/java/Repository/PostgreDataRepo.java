@@ -197,6 +197,31 @@ public class PostgreDataRepo implements IDataRepository{
     }
 
     @Override
+    public String GetCreationDate(int profID) {
+        String date = "";
+
+        try {
+            String sql = "select datecreated from data.profile where profid=?;";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, profID);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()){
+                date = rs.getDate("datecreated").toString();
+            }
+        } catch (Exception e1) {
+            IO.println("Failed to get creation date. Try again: " + e1);
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e2) {
+                IO.println("Sleep likely interrupted: " + e2);
+            }
+        }
+
+        return date;
+    }
+
+    @Override
     public float GetHoursSinceLastAttacked(int profID) {
         float hours = 0;
         boolean successfulInit = false;

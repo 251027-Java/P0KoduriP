@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IDataRepository extends IRepository {
+    public String GetCreationDate(int profID);
     public float GetHoursSinceLastAttacked(int profID);
     public float GetHoursSinceLastCollectedResources(int profID);
     public String GetPlayerName(int profID);

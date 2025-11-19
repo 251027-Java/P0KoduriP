@@ -35,8 +35,20 @@ public class RequirementService implements IService{
     public Upgrade GetUpgradeInfo(int troopID, int troopLevel){
         return repo.GetUpgradeInfo(troopID, troopLevel);
     }
-    public Map<Integer, String> GetBuildingTypes(){
+    public Map<Integer, Integer> GetBuildingTypes(){
         return repo.GetBuildingTypes();
+    }
+    public Map<Integer, String> GetBuildingTypeNames(){
+        return repo.GetBuildingTypeNames();
+    }
+    public Map<Integer, Integer> GetBuildingPurchaseResources(){
+        return repo.GetBuildingPurchaseResources();
+    }
+    public Map<Integer, String> GetBuildingNames(){
+        return repo.GetBuildingNames();
+    }
+    public Map<Integer, Integer> GetBuildingResourcesHeld() {
+        return repo.GetBuildingResourcesHeld();
     }
 
     @Override

@@ -3,6 +3,7 @@ package Models.Singletons;
 import Application.Game;
 import Models.Buildings.ResourceCollector;
 import Models.Buildings.ResourceStorage;
+import Service.RequirementService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +17,8 @@ public class ResourceManager {
     private ResourceManager() {}
     public static ResourceManager getInstance() {return resourceManager;}
 
-    private final Map<Integer, String> resourceNames = new HashMap<>(); //resourceID -> resource name
+    private static final Map<Integer, String> resourceNames = new HashMap<>(); //resourceID -> resource name
+    private static Map<Integer, Integer> resourceHeld; //buildingID -> resource ID
 
     private final Map<Integer, Integer> resources = new HashMap<>(); //resourceID -> amount stored
 
@@ -27,13 +29,17 @@ public class ResourceManager {
     private final Map<Integer, Integer> storagesHP = new HashMap<>(); //resourceID -> total storage HP
 
     public static void GenerateValues(){
-        for (Map.Entry<Integer, String> resources : Game.getInstance().GetRequirementService().GetResourceInfo().entrySet()){
-            resourceManager.AddResource(resources.getKey(), resources.getValue());
+        RequirementService serv = Game.getInstance().GetRequirementService();
+
+        for (Map.Entry<Integer, String> resources : serv.GetResourceInfo().entrySet()){
+            resourceNames.put(resources.getKey(), resources.getValue());
+            resourceManager.AddResource(resources.getKey());
         }
+
+        resourceHeld = serv.GetBuildingResourceHeld();
     }
 
-    public void AddResource(int resourceID, String resourceName){
-        resourceNames.put(resourceID, resourceName);
+    public void AddResource(int resourceID){
         resources.put(resourceID, 0);
         maxResources.put(resourceID, 0);
         collectors.put(resourceID, new ArrayList<>());
@@ -95,9 +101,13 @@ public class ResourceManager {
         return true;
     }
 
-    public String GetResourceName(int resourceID){
+    public static String GetResourceName(int resourceID){
         return resourceNames.get(resourceID);
     }
+    public static int GetBuildingResourceHeld(int resourceID){
+        return resourceHeld.get(resourceID);
+    }
+
     public int GetResources(int resourceID){
         return resources.get(resourceID);
     }
