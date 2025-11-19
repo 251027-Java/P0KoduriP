@@ -9,6 +9,7 @@ public class TroopFactory {
     private int troopid;
     private String name;
     private int cost;
+    private int rid;
     private int space;
 
     private int speed;
@@ -27,7 +28,7 @@ public class TroopFactory {
     private Upgrade upgrade;
 
     public TroopFactory(String tName, int tID, int tCost, int tSpace, int tSpeed, int tRange, float tHitSpeed, boolean groundTroop,
-                 boolean canAttackAir, int barracksUnlockLevel){
+                 boolean canAttackAir, int barracksUnlockLevel, int resourceID){
         troopid = tID;
         name = tName;
         cost = tCost;
@@ -40,6 +41,8 @@ public class TroopFactory {
         atkair = canAttackAir;
 
         raxUnlockLevel = barracksUnlockLevel;
+
+        rid = resourceID;
     }
 
     public void SetTroopInfo(int newLevel, int newDmg, int newHP, Upgrade newUpgradeInfo){
@@ -71,6 +74,9 @@ public class TroopFactory {
     }
     public int GetLevel(){
         return level;
+    }
+    public int GetResourceID(){
+        return rid;
     }
 
     public void SetUpgradingInfo(Upgrade newUpgradeInfo){

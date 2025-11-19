@@ -81,7 +81,13 @@ public class PostgreReqRepo implements IRequirementRepository{
                         raxunlock int not null check (raxunlock >= 0),
                         hitspeed float not null check (hitspeed > 0),
                         ground boolean not null default true,
-                        atkair boolean not null default false
+                        atkair boolean not null default false,
+                        rid int not null,
+                        CONSTRAINT fk_rid
+                            FOREIGN KEY (rid)
+                            REFERENCES req.resource (rid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.defense (
@@ -327,9 +333,9 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (100, 15000);
                     
                     INSERT INTO req.troop VALUES
-                    (1, 'Barbarian', 20, 1, 20, 5, 1, 1, true, false),
-                    (2, 'Archer', 30, 1, 20, 20, 2, 1.5, true, true),
-                    (3, 'Giant', 500, 5, 12, 4, 3, 2, true, false);
+                    (1, 'Barbarian', 20, 1, 20, 5, 1, 1, true, false, 2),
+                    (2, 'Archer', 30, 1, 20, 20, 2, 1.5, true, true, 2),
+                    (3, 'Giant', 500, 5, 12, 4, 3, 2, true, false, 2);
                     
                     INSERT INTO req.defense VALUES
                     (8, false, 2, 60),
@@ -614,7 +620,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     TroopFactory factory = new TroopFactory(rs.getString("troopname"), rs.getInt("troopid"),
                             rs.getInt("cost"), rs.getInt("space"), rs.getInt("speed"),
                             rs.getInt("range"), rs.getFloat("hitspeed"), rs.getBoolean("ground"),
-                            rs.getBoolean("atkair"), rs.getInt("raxunlock"));
+                            rs.getBoolean("atkair"), rs.getInt("raxunlock"), rs.getInt("rid"));
                     factories.add(factory);
                 }
 
@@ -708,7 +714,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                 ResultSet rs = stmt.executeQuery();
 
                 String name = TroopFactoryHandler.getInstance().GetTroopName(troopID);
-                String upResName = ResourceManager.getInstance().GetResourceName(TroopFactoryHandler.GetResourceID());
+                String upResName = ResourceManager.getInstance().GetResourceName(TroopFactoryHandler.getInstance().GetResourceID(troopID));
                 if (rs.next()){
                     up = new Upgrade(name, rs.getInt("upcost"), rs.getInt("updays"), rs.getInt("uphrs"),
                             rs.getInt("upmins"), rs.getInt("upsecs"), false, upResName, troopLevel);

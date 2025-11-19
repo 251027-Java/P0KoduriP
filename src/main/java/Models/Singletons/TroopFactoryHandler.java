@@ -17,18 +17,12 @@ public class TroopFactoryHandler {
     private TroopFactoryHandler() {}
     public static TroopFactoryHandler getInstance() {return handler;}
 
-    private static final String resource = "Elixir";
-    private static int resourceID;
-    public static int GetResourceID(){ return resourceID; }
-
     private Map<Integer, TroopFactory> factories = new HashMap<>();
 
     public static void GenerateFactories(){
         for (TroopFactory factory : Game.getInstance().GetRequirementService().GetTroopFactories()){
             handler.factories.put(factory.GetTroopID(), factory);
         }
-
-        resourceID = ResourceManager.getInstance().GetResourceID(resource);
     }
     public static void LoadTroopInfo(int profID){
         DataService dServ = Game.getInstance().GetDataService();
@@ -77,6 +71,9 @@ public class TroopFactoryHandler {
 
     public String GetTroopName(int troopID){
         return factories.get(troopID).GetTroopName();
+    }
+    public int GetResourceID(int troopID){
+        return factories.get(troopID).GetResourceID();
     }
 
     public void Reset(){
