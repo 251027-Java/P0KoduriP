@@ -32,8 +32,8 @@ public class RequirementService implements IService{
     public int GetTroopHP(int troopID, int troopLevel){
         return repo.GetTroopHP(troopID, troopLevel);
     }
-    public Upgrade GetUpgradeInfo(int troopID, int troopLevel){
-        return repo.GetUpgradeInfo(troopID, troopLevel);
+    public Upgrade GetTroopUpgradeInfo(int troopID, int troopLevel){
+        return repo.GetTroopUpgradeInfo(troopID, troopLevel);
     }
     public Map<Integer, Integer> GetBuildingTypes(){
         return repo.GetBuildingTypes();

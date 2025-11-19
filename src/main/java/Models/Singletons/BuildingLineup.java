@@ -26,7 +26,7 @@ public class BuildingLineup {
             int troopLevel = e.getValue();
 
             handler.SetTroopInfo(troopID, troopLevel, rServ.GetTroopDamage(troopID, troopLevel),
-                    rServ.GetTroopHP(troopID, troopLevel), rServ.GetUpgradeInfo(troopID, troopLevel+1));
+                    rServ.GetTroopHP(troopID, troopLevel), rServ.GetTroopUpgradeInfo(troopID, troopLevel+1));
         }
     }
     public void Reset(){

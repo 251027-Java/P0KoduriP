@@ -701,7 +701,7 @@ public class PostgreReqRepo implements IRequirementRepository{
     }
 
     @Override
-    public Upgrade GetUpgradeInfo(int troopID, int troopLevel) {
+    public Upgrade GetTroopUpgradeInfo(int troopID, int troopLevel) {
         Upgrade up = null;
         boolean successfulInit = false;
 
