@@ -17,6 +17,5 @@ public interface IDataRepository extends IRepository {
     public int GetUpgradingTroopID(int profID);
     public long GetTroopUpgradeTimeRemainingSeconds(int profID);
     public List<PaymentAccount> GetPaymentAccounts(int profID);
-    public Map<Integer, Integer> GetUserTroopLevels(int profID); // TroopID -> TroopLevel
-    public List<Building> GetUserBuildings(int profID);
+    public Map<Integer, Integer> GetUserTroopLevels(int profID); // TroopID -> TroopLeve
 }
