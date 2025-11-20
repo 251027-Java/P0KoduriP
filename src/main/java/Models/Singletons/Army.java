@@ -1,5 +1,6 @@
 package Models.Singletons;
 
+import Application.Game;
 import Models.Buildings.ArmyCamp;
 import Models.Troop;
 
@@ -17,8 +18,20 @@ public class Army {
     private int maxSpace = 0;
     private int currSpace = 0;
 
-    private Map<String, Integer> troopCounts = new HashMap<>();
-    private Map<String, List<Troop>> troops = new HashMap<>();
+    private Map<Integer, Integer> troopCounts; //troopID -> #troops
+    private Map<Integer, List<Troop>> troops; //troopID -> list of troops
+
+    public static void LoadArmy(int profID){
+        army.troopCounts = Game.getInstance().GetDataService().GetPlayerArmy(profID);
+    }
+
+    public void StartBattle(){
+        troops = new HashMap<>();
+        for (Map.Entry<Integer, Integer> e : troopCounts.entrySet()){
+            int troopID = e.getKey();
+            troops.put(troopID, TroopFactoryHandler.getInstance().CreateTroops(troopID, e.getValue()));
+        }
+    }
 
     public void AddArmyCamp(ArmyCamp camp){
         camps.add(camp);
@@ -31,17 +44,29 @@ public class Army {
         maxSpace += changeSpace;
         if (maxSpace < 0) maxSpace = 0;
     }
-
     public int GetSpace(){
         return maxSpace;
+    }
+
+    public void DeployTroops(int troopID){
+        troopCounts.remove(troopID);
+    }
+
+    public String SeeArmy(){
+        String a = "";
+        for (Map.Entry<Integer, Integer> e : troopCounts.entrySet()){
+            int troopID = e.getKey();
+            a += String.format("(%d) %s: %d\n", troopID, TroopFactoryHandler.getInstance().GetTroopName(troopID), e.getValue());
+        }
+
+        if (a.isEmpty()) a = "There are no troops remaining.\n";
+
+        return a.substring(0, a.length()-1);
     }
 
     public void Reset(){
         camps = new ArrayList<>();
         maxSpace = 0;
         currSpace = 0;
-
-        troopCounts.replaceAll((k, v) -> 0);
-        troops.replaceAll((k, v) -> new ArrayList<>());
     }
 }

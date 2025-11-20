@@ -65,6 +65,9 @@ public class DataService implements IService{
     public int GetResourceAmount(int profID, int buildID){
         return dRepo.GetResourceAmount(profID, buildID);
     }
+    public Map<Integer, Integer> GetPlayerArmy(int profID){
+        return dRepo.GetPlayerArmy(profID);
+    }
 
     @Override
     public void DropRepo() {

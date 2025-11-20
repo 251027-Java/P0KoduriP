@@ -2,6 +2,7 @@ package Models.Singletons;
 
 import Application.Game;
 import Models.Abstracts.Building;
+import Models.Buildings.ArmyCamp;
 import Service.RequirementService;
 
 import java.util.HashMap;
@@ -32,6 +33,12 @@ public class BuildingHandler {
         handler.buildings = new HashMap<>();
         for (Building b : Game.getInstance().GetDataService().GetPlayerBuildings(profID)){
             handler.buildings.put(b.GetBuildID(), b);
+
+            switch (BuildingHandler.GetBuildingName(b.GetBuildingID())){
+                case "Army Camp":
+                    Army.getInstance().AddArmyCamp((ArmyCamp) b);
+                    break;
+            }
         }
     }
 

@@ -23,4 +23,5 @@ public interface IDataRepository extends IRepository {
     public Map<Integer, Integer> GetPlayerBuildingLineup(int profID);
     public List<Building> GetPlayerBuildings(int profID);
     public int GetResourceAmount(int profID, int buildID);
+    public Map<Integer, Integer> GetPlayerArmy(int profID);
 }

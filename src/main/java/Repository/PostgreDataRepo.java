@@ -714,4 +714,34 @@ public class PostgreDataRepo implements IDataRepository{
         return amt;
     }
 
+    @Override
+    public Map<Integer, Integer> GetPlayerArmy(int profID) {
+        Map<Integer, Integer> army = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.playerarmy where profid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    army.put(rs.getInt("troopid"), rs.getInt("count"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get player's army. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return army;
+    }
+
 }
