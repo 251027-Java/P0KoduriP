@@ -612,8 +612,6 @@ public class PostgreDataRepo implements IDataRepository{
     public List<Building> GetPlayerBuildings(int profID) {
         List<Building> buildings = new ArrayList<>();
         RequirementService rServ = Game.getInstance().GetRequirementService();
-        DataService dServ = Game.getInstance().GetDataService();
-        boolean successfulInit = false;
 
         // the key is buildid
         List<Integer> buildIDs = new ArrayList<>();
@@ -621,6 +619,7 @@ public class PostgreDataRepo implements IDataRepository{
         Map<Integer, Integer> buildingIDs = new HashMap<>();
         Map<Integer, Boolean> currentUpgrades = new HashMap<>();
 
+        boolean successfulInit = false;
         while (!successfulInit) {
             try {
                 String sql = "select * from data.playerbuildinglevels where profid=?";
@@ -646,58 +645,73 @@ public class PostgreDataRepo implements IDataRepository{
                 }
             }
         }
-        successfulInit = false;
 
         for (int buildID : buildIDs) {
-            int btid = BuildingHandler.GetBuildingType(buildingIDs.get(buildID));
+            int level = levels.get(buildID);
+            int buildingID = buildingIDs.get(buildID);
+            boolean currentlyUpgrading = currentUpgrades.get(buildID);
+            Building b = null;
 
-            while (!successfulInit) { //buildingID, level
-                try {
-                    switch (btid){
-                        case 0:
-                            break;
-                        case 1:
-                            break;
-                        case 2:
-                            break;
-                        case 3:
-                            break;
-                        case 4:
-                            break;
-                        case 5:
-                            break;
-                        case 6:
-                            break;
-                        default:
-                            IO.println("Got the default case when switching through building type ID.");
-                            throw new Exception();
-                    }
-                    String sql = "select * from data.playerbuildinglevels where profid=?";
-                    PreparedStatement stmt = conn.prepareStatement(sql);
-                    stmt.setInt(1, profID);
-                    ResultSet rs = stmt.executeQuery();
-
-                    while (rs.next()) {
-                        int id = rs.getInt("buildid");
-                        levels.put(id, rs.getInt("level"));
-                        buildingIDs.put(id, rs.getInt("buildingid"));
-                        currentUpgrades.put(id, rs.getBoolean("isupgrading"));
-                    }
-
-                    successfulInit = true;
-                } catch (Exception e1) {
-                    IO.println("Failed to get info for player's building ID=" + buildID + ". Trying again...: " + e1);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e2) {
-                        IO.println("Sleep likely interrupted: " + e2);
-                    }
-                }
+            switch (BuildingHandler.GetBuildingTypeName(BuildingHandler.GetBuildingType(buildingID))){
+                case "TH":
+                    b = rServ.GetTownHall(buildID, level, buildingID, currentlyUpgrading);
+                    break;
+                case "camp":
+                    b = rServ.GetArmyCamp(buildID, level, buildingID, currentlyUpgrading);
+                    break;
+                case "rax":
+                    b = rServ.GetBarracks(buildID, level, buildingID, currentlyUpgrading);
+                    break;
+                case "lab":
+                    b = rServ.GetLab(buildID, level, buildingID, currentlyUpgrading);
+                    break;
+                case "collector":
+                    b = rServ.GetCollector(buildID, level, buildingID, currentlyUpgrading, GetResourceAmount(profID, buildID));
+                    break;
+                case "storage":
+                    b = rServ.GetStorage(buildID, level, buildingID, currentlyUpgrading);
+                    break;
+                case "defense":
+                    b = rServ.GetDefense(buildID, level, buildingID, currentlyUpgrading);
+                    break;
+                default:
+                    IO.println("Got the default case (error) when switching through building type ID while getting player buildings.");
             }
-            successfulInit = false;
+            buildings.add(b);
         }
 
         return buildings;
+    }
+
+    @Override
+    public int GetResourceAmount(int profID, int buildID) {
+        int amt = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select amount from data.playerresourcebuildings where profid=? and buildid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, buildID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    amt = rs.getInt("amount");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get resource amount of buildID=" + buildID + ". Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return amt;
     }
 
 }

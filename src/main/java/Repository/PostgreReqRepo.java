@@ -1,5 +1,6 @@
 package Repository;
 
+import Models.Buildings.*;
 import Models.Singletons.BuildingHandler;
 import Models.Singletons.ResourceManager;
 import Models.Singletons.TroopFactoryHandler;
@@ -96,6 +97,8 @@ public class PostgreReqRepo implements IRequirementRepository{
                         atkair boolean not null default false,
                         hitspeed float not null check (hitspeed > 0),
                         range int not null check (range >= 0),
+                        splash boolean not null default false,
+                        splashradius float default 0, -- unknown timestamp if not upgrading
                         CONSTRAINT fk_buildingid
                             FOREIGN KEY (buildingid)
                             REFERENCES req.building (buildingid)
@@ -142,16 +145,17 @@ public class PostgreReqRepo implements IRequirementRepository{
                             ON UPDATE CASCADE
                     );
                     
-                    CREATE TABLE IF NOT EXISTS req.cannon (
-                        canlevel int primary key check (canlevel >= 1),
+                    CREATE TABLE IF NOT EXISTS req.defstats (
+                        buildingid int not null,
+                        deflevel int check (canlevel >= 1),
                         dmg int not null check (dmg >= 0),
-                        hp int not null check (hp > 0)
-                    );
-                    
-                    CREATE TABLE IF NOT EXISTS req.archtower (
-                        atlevel int primary key check (atlevel >= 1),
-                        dmg int not null check (dmg >= 0),
-                        hp int not null check (hp > 0)
+                        hp int not null check (hp > 0),
+                        CONSTRAINT fk_buildingid
+                            FOREIGN KEY (buildingid)
+                            REFERENCES req.building (buildingid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        PRIMARY KEY (buildingid, deflevel)
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.rax (
@@ -339,8 +343,8 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (3, 'Giant', 500, 5, 12, 4, 3, 2, true, false, 2);
                     
                     INSERT INTO req.defense VALUES
-                    (8, false, 2, 60),
-                    (9, true, 1, 30);
+                    (8, false, 2, 60, false, 0),
+                    (9, true, 1, 30, false, 0);
                     
                     INSERT INTO req.armycamp VALUES
                     (1, 500, 20),
@@ -384,29 +388,27 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (6, 1),
                     (7, 2);
                     
-                    INSERT INTO req.cannon VALUES
-                    (1, 60, 4000),
-                    (2, 80, 5000),
-                    (3, 100, 6000),
-                    (4, 120, 8000),
-                    (5, 140, 10000),
-                    (6, 170, 14000),
-                    (7, 200, 18000),
-                    (8, 240, 25000),
-                    (9, 280, 32000),
-                    (10, 350, 40000);
-                    
-                    INSERT INTO req.archtower VALUES
-                    (1, 25, 3000),
-                    (2, 35, 3800),
-                    (3, 45, 4500),
-                    (4, 55, 5800),
-                    (5, 65, 8000),
-                    (6, 75, 11000),
-                    (7, 90, 14000),
-                    (8, 110, 18000),
-                    (9, 130, 25000),
-                    (10, 160, 32000);
+                    INSERT INTO req.defstats VALUES
+                    (8, 1, 60, 4000),
+                    (8, 2, 80, 5000),
+                    (8, 3, 100, 6000),
+                    (8, 4, 120, 8000),
+                    (8, 5, 140, 10000),
+                    (8, 6, 170, 14000),
+                    (8, 7, 200, 18000),
+                    (8, 8, 240, 25000),
+                    (8, 9, 280, 32000),
+                    (8, 10, 350, 40000),
+                    (9, 1, 25, 3000),
+                    (9, 2, 35, 3800),
+                    (9, 3, 45, 4500),
+                    (9, 4, 55, 5800),
+                    (9, 5, 65, 8000),
+                    (9, 6, 75, 11000),
+                    (9, 7, 90, 14000),
+                    (9, 8, 110, 18000),
+                    (9, 9, 130, 25000),
+                    (9, 10, 160, 32000)
                     
                     INSERT INTO req.rax VALUES
                     (1, 500),
@@ -940,7 +942,7 @@ public class PostgreReqRepo implements IRequirementRepository{
 
                 successfulInit = true;
             } catch (Exception e1) {
-                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" HP info. Trying again...: " + e1);
+                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" info. Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
@@ -970,7 +972,7 @@ public class PostgreReqRepo implements IRequirementRepository{
 
                 successfulInit = true;
             } catch (Exception e1) {
-                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" HP info. Trying again...: " + e1);
+                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" info. Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
@@ -981,4 +983,256 @@ public class PostgreReqRepo implements IRequirementRepository{
 
         return max;
     }
+
+    @Override
+    public TownHall GetTownHall(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        TownHall th = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.th natural join req.nextcost where thlevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    th = new TownHall(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                        BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                        rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                        currentlyUpgrading, buildID, rs.getInt("nextcost"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Town Hall info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return th;
+    }
+
+    @Override
+    public ArmyCamp GetArmyCamp(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        ArmyCamp camp = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.armycamp where aclevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    camp = new ArmyCamp(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("maxspace"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Army Camp info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return camp;
+    }
+
+    @Override
+    public Barracks GetBarracks(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        Barracks barracks = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.rax where raxlevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    barracks = new Barracks(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Barracks info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return barracks;
+    }
+
+    @Override
+    public Lab GetLab(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        Lab lab = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.lab where lablevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    lab = new Lab(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("maxtrooplevel"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Lab info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return lab;
+    }
+
+    @Override
+    public ResourceCollector GetCollector(int buildID, int level, int buildingID, boolean currentlyUpgrading, int amount) {
+        ResourceCollector coll = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resgen cross join req.resheld where resgenlevel=? and buildingid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                stmt.setInt(2, buildingID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    coll = new ResourceCollector(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("perhr"), rs.getInt("rid"), amount);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b, amount=%d " +
+                        "ResourceCollector info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading, amount) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return coll;
+    }
+
+    @Override
+    public ResourceStorage GetStorage(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        ResourceStorage store = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resstore cross join req.resheld where resstorelevel=? and buildingid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                stmt.setInt(2, buildingID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    store = new ResourceStorage(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("maxcap"), rs.getInt("rid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "ResourceStorage info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return store;
+    }
+
+    @Override
+    public Defense GetDefense(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        Defense def = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.defstats natural join req.defense where deflevel=? and buildingid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                stmt.setInt(2, buildingID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    def = new Defense(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getBoolean("atkair"), rs.getFloat("hitspeed"),
+                            rs.getInt("range"), rs.getBoolean("splash"),
+                            rs.getFloat("splashradius"), rs.getInt("dmg"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Defense info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return def;
+    }
+
+
 }

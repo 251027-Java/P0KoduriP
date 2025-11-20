@@ -56,11 +56,14 @@ public class DataService implements IService{
     public Map<Integer, Integer> GetUserTroopLevels(int profID){
         return dRepo.GetUserTroopLevels(profID);
     }
+    public Map<Integer, Integer> GetPlayerBuildingLineup(int profID){
+        return dRepo.GetPlayerBuildingLineup(profID);
+    }
     public List<Building> GetPlayerBuildings(int profID){
         return dRepo.GetPlayerBuildings(profID);
     }
-    public Map<Integer, Integer> GetPlayerBuildingLineup(int profID){
-        return dRepo.GetPlayerBuildingLineup(profID);
+    public int GetResourceAmount(int profID, int buildID){
+        return dRepo.GetResourceAmount(profID, buildID);
     }
 
     @Override

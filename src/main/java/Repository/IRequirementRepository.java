@@ -1,5 +1,6 @@
 package Repository;
 
+import Models.Buildings.*;
 import Models.TroopFactory;
 import Util.Models.Upgrade;
 
@@ -22,4 +23,12 @@ public interface IRequirementRepository extends IRepository {
     public Upgrade GetBuildingUpgradeInfo(int buildingID, int buildingLevel);
     public int GetMaxNumberBuildings(int buildingTypeID, int townHallLevel);
     public int GetMaxBuildingLevel(int buildingTypeID, int townHallLevel);
+
+    public TownHall GetTownHall(int buildID, int level, int buildingID, boolean currentlyUpgrading);
+    public ArmyCamp GetArmyCamp(int buildID, int level, int buildingID, boolean currentlyUpgrading);
+    public Barracks GetBarracks(int buildID, int level, int buildingID, boolean currentlyUpgrading);
+    public Lab GetLab(int buildID, int level, int buildingID, boolean currentlyUpgrading);
+    public ResourceCollector GetCollector(int buildID, int level, int buildingID, boolean currentlyUpgrading, int amount);
+    public ResourceStorage GetStorage(int buildID, int level, int buildingID, boolean currentlyUpgrading);
+    public Defense GetDefense(int buildID, int level, int buildingID, boolean currentlyUpgrading);
 }

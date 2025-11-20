@@ -1,5 +1,6 @@
 package Service;
 
+import Models.Buildings.*;
 import Models.TroopFactory;
 import Repository.IRequirementRepository;
 import Util.Models.Upgrade;
@@ -58,6 +59,28 @@ public class RequirementService implements IService{
     }
     public int GetMaxBuildingLevel(int buildingTypeID, int townHallLevel){
         return repo.GetMaxBuildingLevel(buildingTypeID, townHallLevel);
+    }
+
+    public TownHall GetTownHall(int buildID, int level, int buildingID, boolean currentlyUpgrading){
+        return repo.GetTownHall(buildID, level, buildingID, currentlyUpgrading);
+    }
+    public ArmyCamp GetArmyCamp(int buildID, int level, int buildingID, boolean currentlyUpgrading){
+        return repo.GetArmyCamp(buildID, level, buildingID, currentlyUpgrading);
+    }
+    public Barracks GetBarracks(int buildID, int level, int buildingID, boolean currentlyUpgrading){
+        return repo.GetBarracks(buildID, level, buildingID, currentlyUpgrading);
+    }
+    public Lab GetLab(int buildID, int level, int buildingID, boolean currentlyUpgrading){
+        return repo.GetLab(buildID, level, buildingID, currentlyUpgrading);
+    }
+    public ResourceCollector GetCollector(int buildID, int level, int buildingID, boolean currentlyUpgrading, int amount){
+        return repo.GetCollector(buildID, level, buildingID, currentlyUpgrading, amount);
+    }
+    public ResourceStorage GetStorage(int buildID, int level, int buildingID, boolean currentlyUpgrading){
+        return repo.GetStorage(buildID, level, buildingID, currentlyUpgrading);
+    }
+    public Defense GetDefense(int buildID, int level, int buildingID, boolean currentlyUpgrading){
+        return repo.GetDefense(buildID, level, buildingID, currentlyUpgrading);
     }
 
     @Override
