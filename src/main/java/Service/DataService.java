@@ -109,7 +109,7 @@ public class DataService implements IService{
     }
     public int GetBalance(long cardNo, int expMo, int expYr, int pin){
         if (dRepo.GetCardExists(cardNo, expMo, expYr, pin)) return dRepo.GetBalance(cardNo, expMo, expYr, pin);
-        return 0;
+        return -1;
     }
 
     @Override
