@@ -17,6 +17,9 @@ public class DataService implements IService{
         rRepo = reqRepository;
     }
 
+    public int GetNumberOfProfiles(){
+        return dRepo.GetNumberOfProfiles();
+    }
     public String GetCreationDate(int profID){
         return dRepo.GetCreationDate(profID);
     }
@@ -69,14 +72,14 @@ public class DataService implements IService{
         return dRepo.GetPlayerArmy(profID);
     }
 
-    public boolean GetCardExists(long cardNo, int expMo, int expYr, int pin){
-        return dRepo.GetCardExists(cardNo, expMo, expYr, pin);
+    public boolean GetPaymentAccountExists(long cardNo){
+        return dRepo.GetPaymentAccountExists(cardNo);
     }
     public void AddNewCard(long cardNo, int expMo, int expYr, int pin){
-        if (!dRepo.GetCardExists(cardNo, expMo, expYr, pin)) dRepo.AddNewCard(cardNo, expMo, expYr, pin);
+        if (!dRepo.GetPaymentAccountExists(cardNo)) dRepo.AddNewCard(cardNo, expMo, expYr, pin);
     }
     public void DeleteCard(long cardNo, int expMo, int expYr, int pin){
-        if (dRepo.GetCardExists(cardNo, expMo, expYr, pin)) dRepo.DeleteCard(cardNo, expMo, expYr, pin);
+        if (dRepo.GetPaymentAccountExists(cardNo)) dRepo.DeleteCard(cardNo, expMo, expYr, pin);
     }
     public List<String> DisplayGameAccountsToAddToCard(long cardNo){
         return dRepo.DisplayGameAccountsToAddToCard(cardNo);
@@ -100,15 +103,15 @@ public class DataService implements IService{
         if (dRepo.GetAccountsAreConnected(cardNo, profID)) dRepo.RemoveGameAccountFromCard(cardNo, profID);
     }
     public void MakeDeposit(int deposit, long cardNo, int expMo, int expYr, int pin){
-        if (dRepo.GetCardExists(cardNo, expMo, expYr, pin)) dRepo.MakeDeposit(deposit, cardNo, expMo, expYr, pin);
+        if (dRepo.GetPaymentAccountExists(cardNo)) dRepo.MakeDeposit(deposit, cardNo, expMo, expYr, pin);
     }
     public void MakeWithdrawal(int withdrawal, long cardNo, int expMo, int expYr, int pin){
-        if (dRepo.GetCardExists(cardNo, expMo, expYr, pin) && dRepo.GetBalance(cardNo, expMo, expYr, pin) >= withdrawal) {
+        if (dRepo.GetPaymentAccountExists(cardNo) && dRepo.GetBalance(cardNo, expMo, expYr, pin) >= withdrawal) {
             dRepo.MakeWithdrawal(withdrawal, cardNo, expMo, expYr, pin);
         }
     }
     public int GetBalance(long cardNo, int expMo, int expYr, int pin){
-        if (dRepo.GetCardExists(cardNo, expMo, expYr, pin)) return dRepo.GetBalance(cardNo, expMo, expYr, pin);
+        if (dRepo.GetPaymentAccountExists(cardNo)) return dRepo.GetBalance(cardNo, expMo, expYr, pin);
         return -1;
     }
 

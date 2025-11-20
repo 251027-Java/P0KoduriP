@@ -1,9 +1,17 @@
 package Game;
 
+import Application.Game;
+import Service.DataService;
 import Util.UserInput;
 
+import java.util.List;
+
 public class PaymentScreen {
+    private static DataService serv;
+
     public static void StartPaymentScreen(){
+        serv = Game.getInstance().GetDataService();
+
         int input;
 
         do {
@@ -52,7 +60,12 @@ public class PaymentScreen {
 
         if (!UserInput.GetUserConfirmation()) return;
 
+        if (serv.GetPaymentAccountExists(cardno)){
+            IO.println("That account number already exists!");
+            return;
+        }
 
+        serv.AddNewCard(cardno, expmo, expyr, pin);
     }
     private static void RemovePaymentAccount(){
         long cardno = getUserCardNumber();
@@ -69,19 +82,66 @@ public class PaymentScreen {
 
         if (!UserInput.GetUserConfirmation()) return;
 
+        if (!serv.GetPaymentAccountExists(cardno)){
+            IO.println("That account number doesn't exist!");
+            return;
+        }
 
+        serv.DeleteCard(cardno, expmo, expyr, pin);
     }
     private static void AttachGameAccounts(){
         long cardno = getUserCardNumber();
         if (cardno == -1) return;
 
+        if (!serv.GetPaymentAccountExists(cardno)){
+            IO.println("That account number doesn't exist!");
+            return;
+        }
 
+        List<Integer> profIDs = serv.GetGameAccountIDsToAddToCard(cardno);
+        if (profIDs.isEmpty()){
+            IO.println("Every game account is already attached to this payment account!");
+            return;
+        }
+
+        IO.println("Game Accounts with IDs to add to this payment account:");
+        for (String s : serv.DisplayGameAccountsToAddToCard(cardno)){
+            IO.println(s);
+        }
+
+        int profID = UserInput.GetUserInt("Enter an ID to attach to this account (or -1 to go back)", true,
+                n -> n==-1 || profIDs.contains(n));
+
+        if (profID == -1) return;
+
+        serv.AddGameAccountToCard(cardno, profID);
     }
     private static void DetachGameAccounts(){
         long cardno = getUserCardNumber();
         if (cardno == -1) return;
 
+        if (!serv.GetPaymentAccountExists(cardno)){
+            IO.println("That account number doesn't exist!");
+            return;
+        }
 
+        List<Integer> profIDs = serv.GetGameAccountsIDsToRemoveFromCard(cardno);
+        if (profIDs.isEmpty()){
+            IO.println("This payment account is not attached to any game accounts!");
+            return;
+        }
+
+        IO.println("Game Accounts with IDs to remove this payment account:");
+        for (String s : serv.DisplayGameAccountsToRemoveFromCard(cardno)){
+            IO.println(s);
+        }
+
+        int profID = UserInput.GetUserInt("Enter an ID to attach to this account (or -1 to go back)", true,
+                n -> n==-1 || profIDs.contains(n));
+
+        if (profID == -1) return;
+
+        serv.RemoveGameAccountFromCard(cardno, profID);
     }
     private static void MakeDeposit(){
         long cardno = getUserCardNumber();
@@ -98,7 +158,20 @@ public class PaymentScreen {
 
         if (!UserInput.GetUserConfirmation()) return;
 
+        if (!serv.GetPaymentAccountExists(cardno)){
+            IO.println("That account number doesn't exist!");
+            return;
+        }
 
+        IO.println("Current Balance: $" + serv.GetBalance(cardno, expmo, expyr, pin));
+
+        int deposit = UserInput.GetUserInt("Enter how many dollars (>0) you want to deposit (or 0 to go back)",
+                true, n -> n >= 0);
+
+        if (deposit == 0) return;
+
+        serv.MakeDeposit(deposit, cardno, expmo, expyr, pin);
+        IO.println("New Balance: $" + serv.GetBalance(cardno, expmo, expyr, pin));
     }
     private static void MakeWithdrawal(){
         long cardno = getUserCardNumber();
@@ -115,7 +188,22 @@ public class PaymentScreen {
 
         if (!UserInput.GetUserConfirmation()) return;
 
+        if (!serv.GetPaymentAccountExists(cardno)){
+            IO.println("That account number doesn't exist!");
+            return;
+        }
 
+        int balance = serv.GetBalance(cardno, expmo, expyr, pin);
+
+        IO.println("Current Balance: $" + balance);
+
+        int withdrawal = UserInput.GetUserInt("Enter how many dollars (>0) you want to withdraw without going negative (or 0 to go back)",
+                true, n -> n >= 0 && n <= balance);
+
+        if (withdrawal == 0) return;
+
+        serv.MakeWithdrawal(withdrawal, cardno, expmo, expyr, pin);
+        IO.println("New Balance: $" + serv.GetBalance(cardno, expmo, expyr, pin));
     }
     private static void ViewBalance(){
         long cardno = getUserCardNumber();
@@ -132,7 +220,12 @@ public class PaymentScreen {
 
         if (!UserInput.GetUserConfirmation()) return;
 
+        if (!serv.GetPaymentAccountExists(cardno)){
+            IO.println("That account number doesn't exist!");
+            return;
+        }
 
+        IO.println("Current Balance: $" + serv.GetBalance(cardno, expmo, expyr, pin));
     }
 
     private static Long getUserCardNumber(){

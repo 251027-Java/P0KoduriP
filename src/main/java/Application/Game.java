@@ -12,6 +12,7 @@ import java.sql.Connection;
 
 public class Game {
     public final static int MaxDaysTracked = 14;
+    public static int NumProfiles = -1;
 
     private final static Game game = new Game();
     private Game() {}
@@ -52,6 +53,7 @@ public class Game {
         GemValues.GenerateValues();
         TroopFactoryHandler.GenerateFactories(); //ResourceManager values need to be generated first
         BuildingHandler.GenerateValues();
+        NumProfiles = dataServ.GetNumberOfProfiles();
     }
     private void PlayGame(){
 

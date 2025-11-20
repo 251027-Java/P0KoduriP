@@ -199,6 +199,34 @@ public class PostgreDataRepo implements IDataRepository{
 
     }
 
+    public int GetNumberOfProfiles(){
+        int total = -1;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "SELECT COUNT(*) AS numprofs FROM data.profile;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    total = rs.getInt("numprofs");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get total number of profiles. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return hours;
+    }
+
     @Override
     public String GetCreationDate(int profID) {
         String date = "";
@@ -253,6 +281,7 @@ public class PostgreDataRepo implements IDataRepository{
 
         return hours;
     }
+
     @Override
     public float GetHoursSinceLastCollectedResources(int profID) {
         float hours = 0;
@@ -744,18 +773,15 @@ public class PostgreDataRepo implements IDataRepository{
     }
 
     @Override
-    public boolean GetCardExists(long cardNo, int expMo, int expYr, int pin) {
+    public boolean GetPaymentAccountExists(long cardNo) {
         boolean exists = false;
         boolean successfulInit = false;
 
         while (!successfulInit) {
             try {
-                String sql = "select * from data.cc where cardno=? and expmo=? and expyr=? and pin=?;";
+                String sql = "select * from data.cc where cardno=?;";
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.setLong(1, cardNo);
-                stmt.setInt(2, expMo);
-                stmt.setInt(3, expYr);
-                stmt.setInt(4, pin);
 
                 exists = stmt.executeQuery().next();
 

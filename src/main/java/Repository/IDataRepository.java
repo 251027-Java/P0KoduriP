@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface IDataRepository extends IRepository {
+    public int GetNumberOfProfiles();
     public String GetCreationDate(int profID);
     public float GetHoursSinceLastAttacked(int profID);
     public float GetHoursSinceLastCollectedResources(int profID);
@@ -25,7 +26,7 @@ public interface IDataRepository extends IRepository {
     public int GetResourceAmount(int profID, int buildID);
     public Map<Integer, Integer> GetPlayerArmy(int profID);
 
-    public boolean GetCardExists(long cardNo, int expMo, int expYr, int pin);
+    public boolean GetPaymentAccountExists(long cardNo);
     public void AddNewCard(long cardNo, int expMo, int expYr, int pin);
     public void DeleteCard(long cardNo, int expMo, int expYr, int pin);
     public List<String> DisplayGameAccountsToAddToCard(long cardNo);
