@@ -147,7 +147,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     
                     CREATE TABLE IF NOT EXISTS req.defstats (
                         buildingid int not null,
-                        deflevel int check (canlevel >= 1),
+                        deflevel int check (deflevel >= 1),
                         dmg int not null check (dmg >= 0),
                         hp int not null check (hp > 0),
                         CONSTRAINT fk_buildingid
@@ -408,7 +408,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (9, 7, 90, 14000),
                     (9, 8, 110, 18000),
                     (9, 9, 130, 25000),
-                    (9, 10, 160, 32000)
+                    (9, 10, 160, 32000);
                     
                     INSERT INTO req.rax VALUES
                     (1, 500),
@@ -510,11 +510,11 @@ public class PostgreReqRepo implements IRequirementRepository{
                 IO.println("Successful population of Postgre Req Schema.");
                 successfulInit = true;
             } catch (Exception e1) {
-                IO.println("Failed to populate Postgre Req Schema. Trying again...");
+                IO.println("Failed to populate Postgre Req Schema. Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
-                    IO.println("Sleep to populate Postgre Req Schema likely interrupted.");
+                    IO.println("Sleep to populate Postgre Req Schema likely interrupted: " + e2);
                 }
             }
         }

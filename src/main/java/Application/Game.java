@@ -30,8 +30,9 @@ public class Game {
         try {
             Connection conn = ConnectionUtil.GetConnection();
 
-            PostgreDataRepo dataRepo = new PostgreDataRepo(conn, resetData);
+            //reqRepo instantiation needs to come before dataRepo instantiation since some data tables reference req tables
             PostgreReqRepo reqRepo = new PostgreReqRepo(conn, resetReq);
+            PostgreDataRepo dataRepo = new PostgreDataRepo(conn, resetData);
 
             dataServ = new DataService(dataRepo, reqRepo);
             reqServ = new RequirementService(reqRepo);

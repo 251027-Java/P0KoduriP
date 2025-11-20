@@ -62,6 +62,23 @@ public class PostgreDataRepo implements IDataRepository{
                         PRIMARY KEY (cardno, profid)
                     );
                     
+                    CREATE TABLE IF NOT EXISTS data.playertrooplvls (
+                        profid int,
+                        troopid int,
+                        level int not null check (level >= 1),
+                        CONSTRAINT fk_troopid
+                            FOREIGN KEY (troopid)
+                            REFERENCES req.troop (troopid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT fk_profid
+                            FOREIGN KEY (profid)
+                            REFERENCES data.profile (profid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        PRIMARY KEY (troopid, profid)
+                    );
+                    
                     CREATE TABLE IF NOT EXISTS data.player (
                         profid int primary key,
                         lastattacked timestamp not null default current_timestamp, -- the last time the player was attacked
@@ -78,26 +95,9 @@ public class PostgreDataRepo implements IDataRepository{
                             ON UPDATE CASCADE,
                         CONSTRAINT fk_upgradingtroopid
                             FOREIGN KEY (upgradingtroopid)
-                            REFERENCES data.playertrooplvls (troopid)
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE
-                    );
-                    
-                    CREATE TABLE IF NOT EXISTS data.playertrooplvls (
-                        profid int,
-                        troopid int,
-                        level int not null check (level >= 1),
-                        CONSTRAINT fk_troopid
-                            FOREIGN KEY (troopid)
                             REFERENCES req.troop (troopid)
                             ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-                        CONSTRAINT fk_profid
-                            FOREIGN KEY (profid)
-                            REFERENCES data.profile (profid)
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-                        PRIMARY KEY (troopid, profid)
+                            ON UPDATE CASCADE
                     );
                     
                     CREATE TABLE IF NOT EXISTS data.playerbuildinglvls (
