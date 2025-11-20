@@ -52,6 +52,9 @@ public class UserInput {
             }
         }
     }
+    public static int GetUserInt(String prompt, boolean getConfirmation) {
+        return GetUserInt(prompt, getConfirmation, n -> true);
+    }
 
     public static boolean GetUserConfirmation(){
         return GetUserString("Are you sure what you entered is okay? (0: No, 1: Yes)", false,
