@@ -14,9 +14,10 @@ public class UserInput {
         prompt += ": ";
 
         IO.print(prompt);
-        String userString = scan.nextLine();
+        String userString;
 
         while (true) {
+            userString = scan.nextLine();
             if (validString.test(userString)){
                 if (!getConfirmation || GetUserConfirmation()) return userString;
             }
@@ -33,11 +34,12 @@ public class UserInput {
         prompt += ": ";
 
         IO.print(prompt);
-        String userString = scan.nextLine();
+        String userString;
         int userInt;
 
         while (true) {
             try {
+                userString = scan.nextLine();
                 userInt = Integer.parseInt(userString);
 
                 if (validInt.test(userInt)){
@@ -60,11 +62,12 @@ public class UserInput {
         prompt += ": ";
 
         IO.print(prompt);
-        String userString = scan.nextLine();
+        String userString;
         long userLong;
 
         while (true) {
             try {
+                userString = scan.nextLine();
                 userLong = Long.parseLong(userString);
 
                 if (validLong.test(userLong)){

@@ -1,5 +1,6 @@
 package Application;
 
+import GamePackage.HomeScreen;
 import Models.Singletons.*;
 import Repository.PostgreDataRepo;
 import Repository.PostgreReqRepo;
@@ -56,7 +57,7 @@ public class Game {
         NumProfiles = dataServ.GetNumberOfProfiles();
     }
     private void PlayGame(){
-
+        HomeScreen.StartHomeScreen();
     }
 
     public RequirementService GetRequirementService(){

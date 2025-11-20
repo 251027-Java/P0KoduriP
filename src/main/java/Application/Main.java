@@ -6,8 +6,8 @@ public class Main {
 
         boolean resetRequirements = false;
 
-        boolean resetData = true;
-        boolean confirmResetData = true;
+        boolean resetData = false;
+        boolean confirmResetData = false;
 
         Game.getInstance().Play(resetRequirements, resetData && confirmResetData);
 

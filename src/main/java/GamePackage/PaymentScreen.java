@@ -1,4 +1,4 @@
-package Game;
+package GamePackage;
 
 import Application.Game;
 import Service.DataService;
@@ -17,8 +17,8 @@ public class PaymentScreen {
         do {
             input = UserInput.GetUserInt("\n0: Back\n1: Add Payment Account\n2: Remove Payment Account\n" +
                     "3: Add Game Accounts to Payment Account\n4: Remove Game Accounts from Payment Account\n" +
-                    "5: Deposit Money\n6: Withdraw Money\n7: View Balance\nWhat would you like to do?",false,
-                    n -> (0 <= n && n <= 6));
+                    "5: Deposit Money\n6: Withdraw Money\n7: View Balance\nEnter which # you want to do",false,
+                    n -> (0 <= n && n <= 7));
             switch (input) {
                 case 1:
                     AddPaymentAccount();
@@ -66,6 +66,7 @@ public class PaymentScreen {
         }
 
         serv.AddNewCard(cardno, expmo, expyr, pin);
+        IO.println("Account added!");
     }
     private static void RemovePaymentAccount(){
         long cardno = getUserCardNumber();
@@ -88,6 +89,7 @@ public class PaymentScreen {
         }
 
         serv.DeleteCard(cardno, expmo, expyr, pin);
+        IO.println("Account deleted!");
     }
     private static void AttachGameAccounts(){
         long cardno = getUserCardNumber();
@@ -115,6 +117,7 @@ public class PaymentScreen {
         if (profID == -1) return;
 
         serv.AddGameAccountToCard(cardno, profID);
+        IO.println("Game Account is now attached to the Payment Account!");
     }
     private static void DetachGameAccounts(){
         long cardno = getUserCardNumber();
@@ -142,6 +145,7 @@ public class PaymentScreen {
         if (profID == -1) return;
 
         serv.RemoveGameAccountFromCard(cardno, profID);
+        IO.println("Game Account is now detached from the Payment Account!");
     }
     private static void MakeDeposit(){
         long cardno = getUserCardNumber();
