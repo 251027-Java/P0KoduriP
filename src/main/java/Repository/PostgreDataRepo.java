@@ -11,7 +11,6 @@ import java.util.Map;
 import Models.Abstracts.Building;
 import Models.PaymentAccount;
 import Models.Singletons.BuildingHandler;
-import Models.Singletons.BuildingLineup;
 import Service.DataService;
 import Service.RequirementService;
 import Util.Time;
@@ -742,6 +741,371 @@ public class PostgreDataRepo implements IDataRepository{
         }
 
         return army;
+    }
+
+    @Override
+    public boolean GetCardExists(long cardNo, int expMo, int expYr, int pin) {
+        boolean exists = false;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.cc where cardno=? and expmo=? and expyr=? and pin=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, expMo);
+                stmt.setInt(3, expYr);
+                stmt.setInt(4, pin);
+
+                exists = stmt.executeQuery().next();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get if card exists. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return exists;
+    }
+
+    @Override
+    public void AddNewCard(long cardNo, int expMo, int expYr, int pin) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "insert into data.cc values (?,?,?,?,0);";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, expMo);
+                stmt.setInt(3, expYr);
+                stmt.setInt(4, pin);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to add a new card. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void DeleteCard(long cardNo, int expMo, int expYr, int pin) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "delete from data.cc where cardno=? and expmo=? and expyr=? and pin=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, expMo);
+                stmt.setInt(3, expYr);
+                stmt.setInt(4, pin);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to delete card. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<String> DisplayGameAccountsToAddToCard(long cardNo) {
+        List<String> accounts = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.profile where profid not in (select profid from data.ccprof where cardno=?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    accounts.add(String.format("(%d) %s", rs.getInt("profid"), rs.getString("profname")));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to display game accounts to add to payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return accounts;
+    }
+
+    @Override
+    public List<String> DisplayGameAccountsToRemoveFromCard(long cardNo) {
+        List<String> accounts = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.profile natural join data.ccprof where cardno=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    accounts.add(String.format("(%d) %s", rs.getInt("profid"), rs.getString("profname")));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to display game accounts to remove from payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return accounts;
+    }
+
+    @Override
+    public List<Integer> GetGameAccountIDsToAddToCard(long cardNo) {
+        List<Integer> accounts = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.profile where profid not in (select profid from data.ccprof where cardno=?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    accounts.add(rs.getInt("profid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get game account IDs to add to payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return accounts;
+    }
+
+    @Override
+    public List<Integer> GetGameAccountsIDsToRemoveFromCard(long cardNo) {
+        List<Integer> accounts = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.profile natural join data.ccprof where cardno=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    accounts.add(rs.getInt("profid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get game account IDs to remove from payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return accounts;
+    }
+
+    @Override
+    public boolean GetAccountsAreConnected(long cardNo, int profID){
+        boolean connected = false;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.ccprof where cardno=? and profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, profID);
+
+                connected = stmt.executeQuery().next();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get if game and payment accounts are connected. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return connected;
+    }
+
+    @Override
+    public void AddGameAccountToCard(long cardNo, int profID) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "insert into data.ccprof values (?,?);";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, profID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to connect a game and payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void RemoveGameAccountFromCard(long cardNo, int profID) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "delete from data.ccprof where cardno=? and profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, profID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to disconnect a game and payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void MakeDeposit(int deposit, long cardNo, int expMo, int expYr, int pin) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.cc set balance = balance + ? where cardno=? and expmo=? and expyr=? and pin=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, deposit);
+                stmt.setLong(2, cardNo);
+                stmt.setInt(3, expMo);
+                stmt.setInt(4, expYr);
+                stmt.setInt(5, pin);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to deposit " + deposit + " into a payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void MakeWithdrawal(int withdrawal, long cardNo, int expMo, int expYr, int pin) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.cc set balance = balance - ? where cardno=? and expmo=? and expyr=? and pin=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, withdrawal);
+                stmt.setLong(2, cardNo);
+                stmt.setInt(3, expMo);
+                stmt.setInt(4, expYr);
+                stmt.setInt(5, pin);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to withdraw " + withdrawal + " from a payment account. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public int GetBalance(long cardNo, int expMo, int expYr, int pin) {
+        int balance = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select balance from data.cc where cardno=? and expmo=? and expyr=? and pin=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, expMo);
+                stmt.setInt(3, expYr);
+                stmt.setInt(4, pin);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    balance = rs.getInt("balance");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get payment account balance. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return balance;
     }
 
 }

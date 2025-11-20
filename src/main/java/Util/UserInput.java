@@ -56,6 +56,33 @@ public class UserInput {
         return GetUserInt(prompt, getConfirmation, n -> true);
     }
 
+    public static long GetUserLong(String prompt, boolean getConfirmation, Predicate<Long> validLong){
+        prompt += ": ";
+
+        IO.print(prompt);
+        String userString = scan.nextLine();
+        long userLong;
+
+        while (true) {
+            try {
+                userLong = Long.parseLong(userString);
+
+                if (validLong.test(userLong)){
+                    if (!getConfirmation || GetUserConfirmation()) return userLong;
+                }
+                else IO.println("Invalid integer input.");
+
+                IO.print("\n" + prompt);
+            } catch (NumberFormatException e){
+                IO.println("Enter an integer (that satisfies the prompt).\n");
+                IO.print(prompt);
+            }
+        }
+    }
+    public static long GetUserLong(String prompt, boolean getConfirmation) {
+        return GetUserLong(prompt, getConfirmation, n -> true);
+    }
+
     public static boolean GetUserConfirmation(){
         return GetUserString("Are you sure what you entered is okay? (0: No, 1: Yes)", false,
                 s -> s.equals("0") || s.equals("1")).equals("1");

@@ -4,7 +4,7 @@ public class Main {
     public static void main(String[] args){
         IO.println("Application starting...");
 
-        boolean resetRequirements = true;
+        boolean resetRequirements = false;
 
         boolean resetData = true;
         boolean confirmResetData = true;

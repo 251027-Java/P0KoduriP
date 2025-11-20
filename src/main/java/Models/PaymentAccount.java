@@ -36,6 +36,10 @@ public class PaymentAccount {
         return withdraw;
     }
 
+    public int GetBalance(){
+        return balance;
+    }
+
     public void GemPurchase(int usd){
         int gems = GemShop.GetGems(usd);
         if (gems > 0) Withdraw(usd);
