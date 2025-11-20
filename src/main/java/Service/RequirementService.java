@@ -50,6 +50,15 @@ public class RequirementService implements IService{
     public Map<Integer, Integer> GetBuildingResourcesHeld() {
         return repo.GetBuildingResourcesHeld();
     }
+    public Upgrade GetBuildingUpgradeInfo(int buildingID, int buildingLevel){
+        return repo.GetBuildingUpgradeInfo(buildingID, buildingLevel);
+    }
+    public int GetMaxNumberBuildings(int buildingTypeID, int townHallLevel){
+        return repo.GetMaxNumberBuildings(buildingTypeID, townHallLevel);
+    }
+    public int GetMaxBuildingLevel(int buildingTypeID, int townHallLevel){
+        return repo.GetMaxBuildingLevel(buildingTypeID, townHallLevel);
+    }
 
     @Override
     public void DropRepo() {

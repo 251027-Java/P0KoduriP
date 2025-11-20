@@ -19,4 +19,7 @@ public interface IRequirementRepository extends IRepository {
     public Map<Integer, Integer> GetBuildingPurchaseResources();
     public Map<Integer, String> GetBuildingNames();
     public Map<Integer, Integer> GetBuildingResourcesHeld();
+    public Upgrade GetBuildingUpgradeInfo(int buildingID, int buildingLevel);
+    public int GetMaxNumberBuildings(int buildingTypeID, int townHallLevel);
+    public int GetMaxBuildingLevel(int buildingTypeID, int townHallLevel);
 }

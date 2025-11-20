@@ -1,5 +1,6 @@
 package Repository;
 
+import Models.Singletons.BuildingHandler;
 import Models.Singletons.ResourceManager;
 import Models.Singletons.TroopFactoryHandler;
 import Models.TroopFactory;
@@ -881,5 +882,103 @@ public class PostgreReqRepo implements IRequirementRepository{
         }
 
         return held;
+    }
+
+    @Override
+    public Upgrade GetBuildingUpgradeInfo(int buildingID, int buildingLevel) {
+        Upgrade up = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.buildingupgrades where btid=? and buildinglevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, buildingID);
+                stmt.setInt(2, buildingLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                String name = BuildingHandler.GetBuildingName(buildingID);
+                String upResName = ResourceManager.GetResourceName(BuildingHandler.GetBuildingPurchaseResource(buildingID));
+                if (rs.next()){
+                    up = new Upgrade(name, rs.getInt("upcost"), rs.getInt("updays"), rs.getInt("uphrs"),
+                            rs.getInt("upmins"), rs.getInt("upsecs"), false, upResName, buildingLevel);
+                }
+                else {
+                    up = new Upgrade(name, 0, 0, 0, 0, 0,
+                            true, upResName, buildingLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get buildingID=" + buildingID + ", buildingLevel=" + buildingLevel +" upgrade info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return up;
+    }
+
+    @Override
+    public int GetMaxNumberBuildings(int buildingTypeID, int townHallLevel) {
+        int max = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.maxbuildings where btid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, buildingTypeID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    max = rs.getInt("max" + townHallLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" HP info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return max;
+    }
+
+    @Override
+    public int GetMaxBuildingLevel(int buildingTypeID, int townHallLevel) {
+        int max = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.maxbuildinglevel where btid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, buildingTypeID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    max = rs.getInt("max" + townHallLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" HP info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return max;
     }
 }
