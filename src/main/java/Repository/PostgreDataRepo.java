@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import Models.Abstracts.Building;
 import Models.PaymentAccount;
-import Models.TroopFactory;
+import Models.Singletons.BuildingHandler;
+import Models.Singletons.BuildingLineup;
+import Service.DataService;
+import Service.RequirementService;
 import Util.Time;
 
 public class PostgreDataRepo implements IDataRepository{
@@ -391,6 +395,37 @@ public class PostgreDataRepo implements IDataRepository{
     }
 
     @Override
+    public boolean GetBuildingIsUpgrading(int profID, int buildID) {
+        boolean upgrading = false;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select isupgrading from data.playerbuildinglvls where profid=? and buildid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, buildID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    upgrading = rs.getBoolean("isupgrading");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get if building is upgrading. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return upgrading;
+    }
+
+    @Override
     public int GetUpgradingTroopID(int profID) {
         int id = -1;
         boolean successfulInit = false;
@@ -439,6 +474,37 @@ public class PostgreDataRepo implements IDataRepository{
                 successfulInit = true;
             } catch (Exception e1) {
                 IO.println("Failed to get time remaining of upgrading troop. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return remaining;
+    }
+
+    @Override
+    public long GetBuildingUpgradeTimeRemainingSeconds(int profID, int buildID) {
+        long remaining = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "SELECT EXTRACT(EPOCH FROM (upgradefinishtime - NOW()) AS secs FROM data.playerbuildinglvls where profid=? and buildid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, buildID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    remaining = Math.max(0, rs.getLong("secs"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get time remaining of upgrading building. Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
@@ -510,6 +576,128 @@ public class PostgreDataRepo implements IDataRepository{
         }
 
         return troops;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetPlayerBuildingLineup(int profID) {
+        Map<Integer, Integer> lineup = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.playerbuildinglineup where profid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    lineup.put(rs.getInt("buildid"), rs.getInt("pos"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get player's building lineup. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return lineup;
+    }
+
+    @Override
+    public List<Building> GetPlayerBuildings(int profID) {
+        List<Building> buildings = new ArrayList<>();
+        RequirementService rServ = Game.getInstance().GetRequirementService();
+        DataService dServ = Game.getInstance().GetDataService();
+        boolean successfulInit = false;
+
+        // the key is buildid
+        List<Integer> buildIDs = new ArrayList<>();
+        Map<Integer, Integer> levels = new HashMap<>();
+        Map<Integer, Integer> buildingIDs = new HashMap<>();
+        Map<Integer, Boolean> currentUpgrades = new HashMap<>();
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.playerbuildinglevels where profid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    int id = rs.getInt("buildid");
+                    buildIDs.add(id);
+                    levels.put(id, rs.getInt("level"));
+                    buildingIDs.put(id, rs.getInt("buildingid"));
+                    currentUpgrades.put(id, rs.getBoolean("isupgrading"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get player's buildings. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+        successfulInit = false;
+
+        for (int buildID : buildIDs) {
+            int btid = BuildingHandler.GetBuildingType(buildingIDs.get(buildID));
+
+            while (!successfulInit) { //buildingID, level
+                try {
+                    switch (btid){
+                        case 0:
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                        case 4:
+                            break;
+                        case 5:
+                            break;
+                        case 6:
+                            break;
+                        default:
+                            IO.println("Got the default case when switching through building type ID.");
+                            throw new Exception();
+                    }
+                    String sql = "select * from data.playerbuildinglevels where profid=?";
+                    PreparedStatement stmt = conn.prepareStatement(sql);
+                    stmt.setInt(1, profID);
+                    ResultSet rs = stmt.executeQuery();
+
+                    while (rs.next()) {
+                        int id = rs.getInt("buildid");
+                        levels.put(id, rs.getInt("level"));
+                        buildingIDs.put(id, rs.getInt("buildingid"));
+                        currentUpgrades.put(id, rs.getBoolean("isupgrading"));
+                    }
+
+                    successfulInit = true;
+                } catch (Exception e1) {
+                    IO.println("Failed to get info for player's building ID=" + buildID + ". Trying again...: " + e1);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e2) {
+                        IO.println("Sleep likely interrupted: " + e2);
+                    }
+                }
+            }
+            successfulInit = false;
+        }
+
+        return buildings;
     }
 
 }

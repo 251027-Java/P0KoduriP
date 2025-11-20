@@ -1,8 +1,10 @@
 package Models.Singletons;
 
 import Application.Game;
+import Models.Abstracts.Building;
 import Service.RequirementService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BuildingHandler {
@@ -17,6 +19,8 @@ public class BuildingHandler {
 
     private int numBuildings = 0;
 
+    private Map<Integer, Building> buildings; // build ID -> building
+
     public static void GenerateValues(){
         RequirementService serv = Game.getInstance().GetRequirementService();
         buildingTypes = serv.GetBuildingTypes();
@@ -25,7 +29,10 @@ public class BuildingHandler {
         buildingNames = serv.GetBuildingNames();
     }
     public static void LoadBuildings(int profID){
-
+        handler.buildings = new HashMap<>();
+        for (Building b : Game.getInstance().GetDataService().GetPlayerBuildings(profID)){
+            handler.buildings.put(b.GetBuildID(), b);
+        }
     }
 
     public static int GetBuildingType(int buildingID){
@@ -39,5 +46,9 @@ public class BuildingHandler {
     }
     public static String GetBuildingName(int buildingID){
         return buildingNames.get(buildingID);
+    }
+
+    public Building GetBuilding(int buildID){
+        return buildings.get(buildID);
     }
 }

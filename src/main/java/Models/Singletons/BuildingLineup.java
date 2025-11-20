@@ -15,18 +15,14 @@ public class BuildingLineup {
     private static final int maxBuildings = 12;
     private Building[] lineup = new Building[maxBuildings];
 
-    public static void LoadBuildings(int profID){
+    public static void LoadBuildingLineup(int profID){
         buildingLineup.Reset();
 
         DataService dServ = Game.getInstance().GetDataService();
         RequirementService rServ = Game.getInstance().GetRequirementService();
 
-        for (Map.Entry<Integer, Integer> e : dServ.GetUserTroopLevels(profID).entrySet()){
-            int troopID = e.getKey();
-            int troopLevel = e.getValue();
-
-            handler.SetTroopInfo(troopID, troopLevel, rServ.GetTroopDamage(troopID, troopLevel),
-                    rServ.GetTroopHP(troopID, troopLevel), rServ.GetTroopUpgradeInfo(troopID, troopLevel+1));
+        for (Map.Entry<Integer, Integer> e : dServ.GetPlayerBuildingLineup(profID).entrySet()){
+            buildingLineup.lineup[e.getValue()] = BuildingHandler.getInstance().GetBuilding(e.getKey());
         }
     }
     public void Reset(){

@@ -75,4 +75,7 @@ public abstract class Building {
     public int GetBuildID(){
         return buildid;
     }
+    public int GetBuildingID(){
+        return buildingid;
+    }
 }

@@ -1,5 +1,6 @@
 package Service;
 
+import Models.Abstracts.Building;
 import Models.PaymentAccount;
 import Repository.IDataRepository;
 import Repository.IRequirementRepository;
@@ -37,17 +38,29 @@ public class DataService implements IService{
     public boolean GetTroopIsUpgrading(int profID){
         return dRepo.GetTroopIsUpgrading(profID);
     }
+    public boolean GetBuildingIsUpgrading(int profID, int buildID){
+        return dRepo.GetBuildingIsUpgrading(profID, buildID);
+    }
     public int GetUpgradingTroopID(int profID){
         return dRepo.GetUpgradingTroopID(profID);
     }
     public long GetTroopUpgradeTimeRemainingSeconds(int profID){
         return dRepo.GetTroopUpgradeTimeRemainingSeconds(profID);
     }
+    public long GetBuildingUpgradeTimeRemainingSeconds(int profID, int buildID){
+        return dRepo.GetBuildingUpgradeTimeRemainingSeconds(profID, buildID);
+    }
     public List<PaymentAccount> GetPaymentAccounts(int profID){
         return dRepo.GetPaymentAccounts(profID);
     }
     public Map<Integer, Integer> GetUserTroopLevels(int profID){
         return dRepo.GetUserTroopLevels(profID);
+    }
+    public List<Building> GetPlayerBuildings(int profID){
+        return dRepo.GetPlayerBuildings(profID);
+    }
+    public Map<Integer, Integer> GetPlayerBuildingLineup(int profID){
+        return dRepo.GetPlayerBuildingLineup(profID);
     }
 
     @Override

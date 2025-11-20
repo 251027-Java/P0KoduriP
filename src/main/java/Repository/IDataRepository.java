@@ -14,8 +14,12 @@ public interface IDataRepository extends IRepository {
     public int GetGems(int profID);
     public int GetTrophies(int profID);
     public boolean GetTroopIsUpgrading(int profID);
+    public boolean GetBuildingIsUpgrading(int profID, int buildID);
     public int GetUpgradingTroopID(int profID);
     public long GetTroopUpgradeTimeRemainingSeconds(int profID);
+    public long GetBuildingUpgradeTimeRemainingSeconds(int profID, int buildID);
     public List<PaymentAccount> GetPaymentAccounts(int profID);
     public Map<Integer, Integer> GetUserTroopLevels(int profID); // TroopID -> TroopLevel
+    public Map<Integer, Integer> GetPlayerBuildingLineup(int profID);
+    public List<Building> GetPlayerBuildings(int profID);
 }
