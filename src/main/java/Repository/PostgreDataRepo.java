@@ -224,7 +224,7 @@ public class PostgreDataRepo implements IDataRepository{
             }
         }
 
-        return hours;
+        return total;
     }
 
     @Override
