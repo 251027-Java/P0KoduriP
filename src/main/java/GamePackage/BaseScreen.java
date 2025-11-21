@@ -20,7 +20,7 @@ public class BaseScreen {
         do {
             Screen.Clear();
 
-            input = UserInput.GetUserInt("\n0: Back\n1: Display Info\n2: Gem Shop\n" +
+            input = UserInput.GetUserInt("\n0: Back\n1: Display Profile Info\n2: Gem Shop\n" +
                             "Enter which # you want to do",false,n -> (0 <= n && n <= 2));
             switch (input) {
                 case 1:
