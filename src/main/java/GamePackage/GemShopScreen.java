@@ -26,15 +26,24 @@ public class GemShopScreen {
 
             Map<Long, PaymentAccount> accounts = Profile.getInstance().GetPaymentOptions();
             Set<Long> cardNos = accounts.keySet();
-            IO.println("\nYour Payment Accounts:");
-            for (Map.Entry<Long, PaymentAccount> e : accounts.entrySet()) {
-                IO.println(String.format("#%d: $%d", e.getKey(), e.getValue().GetBalance()));
-            }
-            IO.println("\nYou have " + Profile.getInstance().GetGems() + " gems.");
 
-            input = UserInput.GetUserLong("Enter a card number to use (or -1 to leave the shop)", false,
-                    n -> n==-1 || cardNos.contains(n));
-            if (input != -1) Purchase(accounts.get(input));
+            IO.println("\nYour Payment Accounts:");
+
+            if (!accounts.isEmpty()) {
+                for (Map.Entry<Long, PaymentAccount> e : accounts.entrySet()) {
+                    IO.println(String.format("#%d: $%d", e.getKey(), e.getValue().GetBalance()));
+                }
+
+                IO.println("\nYou have " + Profile.getInstance().GetGems() + " gems.");
+
+                input = UserInput.GetUserLong("Enter a card number to use (or -1 to leave the shop)", false,
+                        n -> n == -1 || cardNos.contains(n));
+                if (input != -1) Purchase(accounts.get(input));
+            }
+            else {
+                UserInput.GetUserString("You have no payment accounts attached. Type any key and hit enter to exit", false);
+                input = -1;
+            }
         } while (input != -1);
     }
 
@@ -43,16 +52,26 @@ public class GemShopScreen {
 
         Map<Integer, Integer> options = GemShop.GetAvailableOptions(pa.GetBalance());
         Set<Integer> prices = options.keySet();
-        IO.println("--- Purchase Options ---");
-        for (Map.Entry<Integer, Integer> e : options.entrySet()) {
-            IO.println(String.format("$%d -> %d gems", e.getKey(), e.getValue()));
-        }
-        IO.println("-------");
-        IO.println("Your balance (#" + pa.GetCardNumber() + ") is $" + pa.GetBalance() + ".");
-        IO.println("You have " + Profile.getInstance().GetGems() + " gems.");
 
-        int usd = UserInput.GetUserInt("Enter a price to buy (or -1 to go back)", true,
-                n -> n==-1 || prices.contains(n));
+        int usd;
+        IO.println("--- Purchase Options ---");
+
+        if (!options.isEmpty()) {
+            for (Map.Entry<Integer, Integer> e : options.entrySet()) {
+                IO.println(String.format("$%d -> %d gems", e.getKey(), e.getValue()));
+            }
+            IO.println("-------");
+
+            IO.println("Your balance (#" + pa.GetCardNumber() + ") is $" + pa.GetBalance() + ".");
+            IO.println("You have " + Profile.getInstance().GetGems() + " gems.");
+
+            usd = UserInput.GetUserInt("Enter a price to buy (or -1 to go back)", true,
+                    n -> n == -1 || prices.contains(n));
+        }
+        else {
+            UserInput.GetUserString("You don't have enough money to buy any gems. Type any key and hit enter to go back", false);
+            usd = -1;
+        }
 
         if (usd == -1) return;
 
