@@ -1,0 +1,5 @@
+1) start docker (URL = "jdbc:postgresql://localhost:5432/clashofclans1d", User = "postgres", Password = "p0")
+2) at the root of the project with pom.xml (ClashOfClans1D), run:
+	a) mvn clean package (only necessary if .jar file is missing from target folder or changes to code made since this command was last run)
+	b) mvn exec:java
+		i) if command line arguments are added in the future, can use "mvn exec:java -Dexec.args="arg1 arg2 arg3 argetc" to run the program

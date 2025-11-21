@@ -1,32 +1,1235 @@
 package Repository;
 
+import Models.Buildings.*;
+import Models.Singletons.BuildingHandler;
+import Models.Singletons.ResourceManager;
+import Models.Singletons.TroopFactoryHandler;
+import Models.TroopFactory;
+import Util.Models.Upgrade;
+
 import java.sql.*;
+import java.util.*;
 
 public class PostgreReqRepo implements IRequirementRepository{
     private final Connection conn;
+
     public PostgreReqRepo(Connection connection, boolean resetSchema){
         conn = connection;
+
+        if (resetSchema) DropRepo();
 
         boolean successfulInit = false;
         while (!successfulInit) {
             try (Statement stmt = conn.createStatement()) {
+                String[] thTables = {"maxbuildings", "maxbuildinglevel"};
+
                 String sql = """
-                        CREATE SCHEMA IF NOT EXISTS req;
-                        
-                        DROP SCHEMA IF EXISTS public;
-                        """;
+                    CREATE SCHEMA IF NOT EXISTS req;
+                    
+                    DROP SCHEMA IF EXISTS public CASCADE;
+                    
+                    CREATE TABLE IF NOT EXISTS req.resource (
+                        rid int primary key,
+                        rname varchar(20) not null
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.buildingtype (
+                        btid int primary key,
+                        type varchar(20) not null
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.building (
+                        buildingid int primary key,
+                        buildingname varchar(20) not null,
+                        btid int not null,
+                        rid int not null,
+                        CONSTRAINT fk_btid
+                            FOREIGN KEY (btid)
+                            REFERENCES req.buildingtype (btid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT fk_rid
+                            FOREIGN KEY (rid)
+                            REFERENCES req.resource (rid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    );
+                    
+                    """;
+
+                sql += THTableString(thTables, 4);
+
+                sql += """
+                    CREATE TABLE IF NOT EXISTS req.gemvalue (
+                        type varchar(20) primary key,
+                        val int not null check (val >= 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.gemshop (
+                        usd int primary key check (usd >= 0),
+                        numgems int not null check (numgems >= 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.troop (
+                        troopid int primary key,
+                        troopname varchar(20) not null,
+                        cost int not null check (cost >= 0),
+                        space int not null check (space >= 0),
+                        speed int not null check (speed >= 0),
+                        range int not null check (range >= 0),
+                        raxunlock int not null check (raxunlock >= 0),
+                        hitspeed float not null check (hitspeed > 0),
+                        ground boolean not null default true,
+                        atkair boolean not null default false,
+                        rid int not null,
+                        CONSTRAINT fk_rid
+                            FOREIGN KEY (rid)
+                            REFERENCES req.resource (rid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.defense (
+                        buildingid int primary key,
+                        atkair boolean not null default false,
+                        hitspeed float not null check (hitspeed > 0),
+                        range int not null check (range >= 0),
+                        splash boolean not null default false,
+                        splashradius float default 0, -- unknown timestamp if not upgrading
+                        CONSTRAINT fk_buildingid
+                            FOREIGN KEY (buildingid)
+                            REFERENCES req.building (buildingid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.armycamp (
+                        aclevel int primary key check (aclevel >= 1),
+                        hp int not null check (hp > 0),
+                        maxspace int not null check (maxspace >= 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.lab (
+                        lablevel int primary key check (lablevel >= 1),
+                        hp int not null check (hp > 0),
+                        maxtrooplevel int not null check (maxtrooplevel >= 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.resgen (
+                        resgenlevel int primary key check (resgenlevel >= 1),
+                        hp int not null check (hp > 0),
+                        perhr int not null check (perhr >= 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.resstore (
+                        resstorelevel int primary key check (resstorelevel >= 1),
+                        hp int not null check (hp > 0),
+                        maxcap int not null check (maxcap >= 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.resheld (
+                        buildingid int primary key,
+                        rid int not null,
+                        CONSTRAINT fk_buildingid
+                            FOREIGN KEY (buildingid)
+                            REFERENCES req.building (buildingid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT fk_rid
+                            FOREIGN KEY (rid)
+                            REFERENCES req.resource (rid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.defstats (
+                        buildingid int not null,
+                        deflevel int check (deflevel >= 1),
+                        dmg int not null check (dmg >= 0),
+                        hp int not null check (hp > 0),
+                        CONSTRAINT fk_buildingid
+                            FOREIGN KEY (buildingid)
+                            REFERENCES req.building (buildingid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        PRIMARY KEY (buildingid, deflevel)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.rax (
+                        raxlevel int primary key check (raxlevel >= 1),
+                        hp int not null check (hp > 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.th (
+                        thlevel int primary key check (thlevel >= 1),
+                        hp int not null check (hp > 0)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.trooplevels (
+                        troopid int,
+                        trooplevel int check (trooplevel >= 1),
+                        dmg int not null check (dmg >= 0),
+                        hp int not null check (hp > 0),
+                        upcost int not null check (upcost >= 0),
+                        updays int not null check (updays >= 0),
+                        uphrs int not null check (uphrs >= 0),
+                        upmins int not null check (upmins >= 0),
+                        upsecs int not null check (upsecs >= 0),
+                        CONSTRAINT fk_troopid
+                            FOREIGN KEY (troopid)
+                            REFERENCES req.troop (troopid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        PRIMARY KEY (troopid, trooplevel)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.buildingupgrades (
+                        btid int,
+                        buildinglevel int check (buildinglevel >= 1),
+                        upcost int not null check (upcost >= 0),
+                        updays int not null check (updays >= 0),
+                        uphrs int not null check (uphrs >= 0),
+                        upmins int not null check (upmins >= 0),
+                        upsecs int not null check (upsecs >= 0),
+                        CONSTRAINT fk_btid
+                            FOREIGN KEY (btid)
+                            REFERENCES req.buildingtype (btid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        PRIMARY KEY (btid, buildinglevel)
+                    );
+                    
+                    CREATE TABLE IF NOT EXISTS req.nextcost (
+                        thlevel int primary key,
+                        nextcost int not null check (nextcost >= 0),
+                        CONSTRAINT fk_thlevel
+                            FOREIGN KEY (thlevel)
+                            REFERENCES req.th (thlevel)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE
+                    );
+                    """;
 
                 stmt.execute(sql);
                 IO.println("Successful creation (if necessary) of Postgre Req Schema.");
                 successfulInit = true;
+
+                if (resetSchema) FillTables();
             } catch (Exception e1) {
-                IO.println("Failed to create Postgre Req Schema (if necessary). Trying again...");
+                IO.println("Failed to create Postgre Req Schema (if necessary). Trying again...: " + e1);
                 try {
                     Thread.sleep(1000);
                 } catch (Exception e2) {
-                    IO.println("Sleep to create Postgre Req Schema (if necessary) likely interrupted.");
+                    IO.println("Sleep to create Postgre Req Schema (if necessary) likely interrupted: " + e2);
                 }
             }
         }
     }
+    private String THTableString(String[] tables, int maxTH){
+        String create = "";
+        for (String table : tables) {
+            create += """
+                CREATE TABLE IF NOT EXISTS req.%s (
+                    btid int primary key,
+                    max1 int check (max1 >= 0),
+                """.formatted(table);
+            for (int i=2; i<=maxTH; i++){
+                create += """
+                        max%d int check (max%d >= max%d),
+                    """.formatted(i, i, i-1);
+            }
+            create += """
+                    CONSTRAINT fk_btid
+                        FOREIGN KEY (btid)
+                        REFERENCES req.buildingType (btid)
+                        ON DELETE CASCADE
+                        ON UPDATE CASCADE
+                );
+                
+                """;
+        }
+        return create;
+    }
+
+    @Override
+    public void DropRepo() {
+        boolean successfulDrop = false;
+        while (!successfulDrop) {
+            try (Statement stmt = conn.createStatement()) {
+                String sql = """
+                    DROP SCHEMA IF EXISTS req CASCADE;
+                    """;
+
+                stmt.execute(sql);
+                IO.println("Successful drop (if exists) of Postgre Req Schema.");
+                successfulDrop = true;
+            } catch (Exception e1) {
+                IO.println("Failed to drop Postgre Req Schema (if exists). Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep to drop Postgre Req Schema (if exists) likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+    private void FillTables(){
+        boolean successfulInit = false;
+        while (!successfulInit) {
+            try (Statement stmt = conn.createStatement()) {
+                String sql = """
+                    INSERT INTO req.resource VALUES
+                    (0, 'Gems'),
+                    (1, 'Gold'),
+                    (2, 'Elixir');
+                    
+                    INSERT INTO req.buildingtype VALUES
+                    (0, 'TH'),
+                    (1, 'camp'),
+                    (2, 'rax'),
+                    (3, 'lab'),
+                    (4, 'collector'),
+                    (5, 'storage'),
+                    (6, 'defense');
+                    
+                    INSERT INTO req.building VALUES
+                    (0, 'Town Hall', 0, 1),
+                    (1, 'Army Camp', 1, 2),
+                    (2, 'Barracks', 2, 2),
+                    (3, 'Laboratory', 3, 2),
+                    (4, 'Gold Mine', 4, 2),
+                    (5, 'Elixir Collector', 4, 1),
+                    (6, 'Gold Storage', 5, 2),
+                    (7, 'Elixir Storage', 5, 1),
+                    (8, 'Cannon', 6, 1),
+                    (9, 'Archer Tower', 6, 1);
+                    
+                    INSERT INTO req.maxbuildings VALUES
+                    (0, 1, 1, 1, 1),
+                    (1, 1, 1, 1, 1),
+                    (2, 1, 1, 1, 1),
+                    (3, 0, 1, 1, 1),
+                    (4, 1, 1, 1, 1),
+                    (5, 1, 1, 1, 1),
+                    (6, 1, 1, 2, 2);
+                    
+                    INSERT INTO req.maxbuildinglevel VALUES
+                    (0, 2, 3, 4, 4),
+                    (1, 1, 2, 3, 5),
+                    (2, 1, 2, 3, 3),
+                    (3, 0, 1, 2, 3),
+                    (4, 1, 2, 5, 10),
+                    (5, 1, 2, 5, 10),
+                    (6, 1, 2, 4, 10);
+                    
+                    INSERT INTO req.gemvalue VALUES
+                    ('time', 5), -- 5 minutes = 1 gem
+                    ('resource', 1000); -- 1000 resource = 1 gem
+                    
+                    INSERT INTO req.gemshop VALUES
+                    (1, 80),
+                    (5, 500),
+                    (10, 1200),
+                    (20, 2500),
+                    (50, 6500),
+                    (100, 15000);
+                    
+                    INSERT INTO req.troop VALUES
+                    (1, 'Barbarian', 20, 1, 20, 5, 1, 1, true, false, 2),
+                    (2, 'Archer', 30, 1, 20, 20, 2, 1.5, true, true, 2),
+                    (3, 'Giant', 500, 5, 12, 4, 3, 2, true, false, 2);
+                    
+                    INSERT INTO req.defense VALUES
+                    (8, false, 2, 60, false, 0),
+                    (9, true, 1, 30, false, 0);
+                    
+                    INSERT INTO req.armycamp VALUES
+                    (1, 500, 20),
+                    (2, 700, 25),
+                    (3, 1500, 50),
+                    (4, 2500, 75),
+                    (5, 4000, 100);
+                    
+                    INSERT INTO req.lab VALUES
+                    (1, 750, 2),
+                    (2, 1600, 5),
+                    (3, 4000, 10);
+                    
+                    INSERT INTO req.resgen VALUES
+                    (1, 600, 1000),
+                    (2, 800, 1200),
+                    (3, 1200, 1500),
+                    (4, 1400, 1800),
+                    (5, 1700, 2200),
+                    (6, 2300, 2700),
+                    (7, 2900, 3200),
+                    (8, 3500, 3700),
+                    (9, 4200, 4300),
+                    (10, 5000, 5000);
+                    
+                    INSERT INTO req.resstore VALUES
+                    (1, 1800, 20000),
+                    (2, 2400, 30000),
+                    (3, 3600, 50000),
+                    (4, 4200, 75000),
+                    (5, 5100, 100000),
+                    (6, 6900, 200000),
+                    (7, 8700, 300000),
+                    (8, 10500, 500000),
+                    (9, 12600, 750000),
+                    (10, 15000, 1000000);
+                    
+                    INSERT INTO req.resheld VALUES
+                    (4, 1),
+                    (5, 2),
+                    (6, 1),
+                    (7, 2);
+                    
+                    INSERT INTO req.defstats VALUES
+                    (8, 1, 60, 4000),
+                    (8, 2, 80, 5000),
+                    (8, 3, 100, 6000),
+                    (8, 4, 120, 8000),
+                    (8, 5, 140, 10000),
+                    (8, 6, 170, 14000),
+                    (8, 7, 200, 18000),
+                    (8, 8, 240, 25000),
+                    (8, 9, 280, 32000),
+                    (8, 10, 350, 40000),
+                    (9, 1, 25, 3000),
+                    (9, 2, 35, 3800),
+                    (9, 3, 45, 4500),
+                    (9, 4, 55, 5800),
+                    (9, 5, 65, 8000),
+                    (9, 6, 75, 11000),
+                    (9, 7, 90, 14000),
+                    (9, 8, 110, 18000),
+                    (9, 9, 130, 25000),
+                    (9, 10, 160, 32000);
+                    
+                    INSERT INTO req.rax VALUES
+                    (1, 500),
+                    (2, 750),
+                    (3, 2000);
+                    
+                    INSERT INTO req.th VALUES
+                    (1, 8000),
+                    (2, 10000),
+                    (3, 20000),
+                    (4, 100000);
+                    
+                    INSERT INTO req.trooplevels VALUES
+                    (1, 1, 20, 50, 0, 0, 0, 0, 0),
+                    (1, 2, 25, 60, 2000, 0, 0, 0, 10),
+                    (1, 3, 30, 80, 4000, 0, 0, 0, 15),
+                    (1, 4, 40, 100, 6000, 0, 0, 0, 20),
+                    (1, 5, 50, 120, 10000, 0, 0, 0, 30),
+                    (1, 6, 60, 140, 15000, 0, 0, 1, 0),
+                    (1, 7, 80, 170, 20000, 0, 0, 5, 0),
+                    (1, 8, 100, 200, 100000, 0, 2, 0, 0),
+                    (1, 9, 140, 230, 400000, 3, 0, 0, 0),
+                    (1, 10, 180, 300, 750000, 14, 0, 0, 0),
+                    (2, 1, 35, 25, 0, 0, 0, 0, 0),
+                    (2, 2, 40, 30, 2500, 0, 0, 0, 10),
+                    (2, 3, 50, 40, 5000, 0, 0, 0, 15),
+                    (2, 4, 60, 50, 8000, 0, 0, 0, 20),
+                    (2, 5, 75, 60, 12000, 0, 0, 0, 30),
+                    (2, 6, 90, 70, 18000, 0, 0, 1, 0),
+                    (2, 7, 110, 85, 24000, 0, 0, 5, 0),
+                    (2, 8, 140, 100, 120000, 0, 2, 0, 0),
+                    (2, 9, 200, 115, 420069, 3, 0, 0, 0),
+                    (2, 10, 300, 150, 800000, 14, 0, 0, 0),
+                    (3, 1, 15, 250, 0, 0, 0, 0, 0),
+                    (3, 2, 20, 300, 4000, 0, 0, 0, 10),
+                    (3, 3, 25, 400, 8000, 0, 0, 0, 15),
+                    (3, 4, 35, 500, 12000, 0, 0, 0, 20),
+                    (3, 5, 45, 600, 20000, 0, 0, 0, 30),
+                    (3, 6, 55, 700, 30000, 0, 0, 1, 0),
+                    (3, 7, 75, 850, 50000, 0, 0, 5, 0),
+                    (3, 8, 90, 1000, 200000, 0, 2, 0, 0),
+                    (3, 9, 120, 1200, 500000, 3, 0, 0, 0),
+                    (3, 10, 150, 1500, 1000000, 14, 0, 0, 0);
+                    
+                    INSERT INTO req.buildingupgrades VALUES
+                    (0, 2, 20000, 0, 0, 0, 30),
+                    (0, 3, 30000, 0, 0, 1, 0),
+                    (0, 4, 100000, 0, 1, 0, 0),
+                    (1, 1, 5, 0, 0, 0, 5),
+                    (1, 2, 100, 0, 0, 0, 10),
+                    (1, 3, 1000, 0, 0, 1, 0),
+                    (1, 4, 100000, 0, 1, 0, 0),
+                    (1, 5, 500000, 1, 0, 0, 0),
+                    (2, 1, 10, 0, 0, 0, 10),
+                    (2, 2, 500, 0, 0, 1, 0),
+                    (2, 3, 10000, 0, 1, 0, 0),
+                    (3, 1, 1000, 0, 0, 1, 0),
+                    (3, 2, 20000, 0, 1, 0, 0),
+                    (3, 3, 400000, 1, 0, 0, 0),
+                    (4, 1, 0, 0, 0, 0, 5),
+                    (4, 2, 10, 0, 0, 0, 10),
+                    (4, 3, 100, 0, 0, 1, 0),
+                    (4, 4, 1000, 0, 0, 5, 0),
+                    (4, 5, 5000, 0, 0, 30, 0),
+                    (4, 6, 10000, 0, 1, 0, 0),
+                    (4, 7, 20000, 0, 2, 0, 0),
+                    (4, 8, 30000, 0, 3, 0, 0),
+                    (4, 9, 50000, 0, 6, 0, 0),
+                    (4, 10, 100000, 0, 12, 0, 0),
+                    (5, 1, 0, 0, 0, 0, 10),
+                    (5, 2, 100, 0, 0, 0, 30),
+                    (5, 3, 500, 0, 0, 2, 0),
+                    (5, 4, 2000, 0, 0, 10, 0),
+                    (5, 5, 10000, 0, 1, 0, 0),
+                    (5, 6, 20000, 0, 2, 0, 0),
+                    (5, 7, 50000, 0, 4, 0, 0),
+                    (5, 8, 100000, 0, 6, 0, 0),
+                    (5, 9, 200000, 0, 12, 0, 0),
+                    (5, 10, 300000, 1, 0, 0, 0),
+                    (6, 1, 10, 0, 0, 0, 5),
+                    (6, 2, 100, 0, 0, 0, 20),
+                    (6, 3, 1000, 0, 0, 2, 0),
+                    (6, 4, 10000, 0, 0, 10, 0),
+                    (6, 5, 50000, 0, 1, 0, 0),
+                    (6, 6, 100000, 0, 4, 0, 0),
+                    (6, 7, 200000, 0, 12, 0, 0),
+                    (6, 8, 300000, 1, 0, 0, 0),
+                    (6, 9, 500000, 3, 0, 0, 0),
+                    (6, 10, 800000, 7, 0, 0, 0);
+                    
+                    INSERT INTO req.nextcost VALUES
+                    (1, 2),
+                    (2, 10),
+                    (3, 50),
+                    (4, 1000);
+                    """;
+
+                stmt.execute(sql);
+                IO.println("Successful population of Postgre Req Schema.");
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to populate Postgre Req Schema. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep to populate Postgre Req Schema likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public Map<Integer, String> GetResourceInfo() {
+        Map<Integer, String> resources = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resource";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    resources.put(rs.getInt("rid"), rs.getString("rname"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get resource info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return resources;
+    }
+
+    @Override
+    public int GetValuePerGem(String value) {
+        int val = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.gemvalue where type=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, value);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    val = rs.getInt("val");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get gem value (" + value + ") info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return val;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetGemShopOptions() {
+        Map<Integer, Integer> options = new TreeMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.gemshop";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    options.put(rs.getInt("usd"), rs.getInt("numgems"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get gem shop info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return options;
+    }
+
+    @Override
+    public List<TroopFactory> GetTroopFactories() {
+        List<TroopFactory> factories = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.troop";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    TroopFactory factory = new TroopFactory(rs.getString("troopname"), rs.getInt("troopid"),
+                            rs.getInt("cost"), rs.getInt("space"), rs.getInt("speed"),
+                            rs.getInt("range"), rs.getFloat("hitspeed"), rs.getBoolean("ground"),
+                            rs.getBoolean("atkair"), rs.getInt("raxunlock"), rs.getInt("rid"));
+                    factories.add(factory);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troop factories. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return factories;
+    }
+
+    @Override
+    public int GetTroopDamage(int troopID, int troopLevel) {
+        int val = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.trooplevels where troopid=? and trooplevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, troopID);
+                stmt.setInt(2, troopLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    val = rs.getInt("dmg");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troopID=" + troopID + ", troopLevel=" + troopLevel +" damage info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return val;
+    }
+
+    @Override
+    public int GetTroopHP(int troopID, int troopLevel) {
+        int val = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.trooplevels where troopid=? and trooplevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, troopID);
+                stmt.setInt(2, troopLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    val = rs.getInt("hp");
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troopID=" + troopID + ", troopLevel=" + troopLevel +" HP info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return val;
+    }
+
+    @Override
+    public Upgrade GetTroopUpgradeInfo(int troopID, int troopLevel) {
+        Upgrade up = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.trooplevels where troopid=? and trooplevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, troopID);
+                stmt.setInt(2, troopLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                String name = TroopFactoryHandler.getInstance().GetTroopName(troopID);
+                String upResName = ResourceManager.GetResourceName(TroopFactoryHandler.getInstance().GetResourceID(troopID));
+                if (rs.next()){
+                    up = new Upgrade(name, rs.getInt("upcost"), rs.getInt("updays"), rs.getInt("uphrs"),
+                            rs.getInt("upmins"), rs.getInt("upsecs"), false, upResName, troopLevel);
+                }
+                else {
+                    up = new Upgrade(name, 0, 0, 0, 0, 0,
+                            true, upResName, troopLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get troopID=" + troopID + ", troopLevel=" + troopLevel +" upgrade info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return up;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetBuildingTypes() {
+        Map<Integer, Integer> types = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.building";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    types.put(rs.getInt("buildingid"), rs.getInt("btid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building type info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return types;
+    }
+
+    @Override
+    public Map<Integer, String> GetBuildingTypeNames() {
+        Map<Integer, String> names = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.buildingtype";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    names.put(rs.getInt("btid"), rs.getString("type"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building type names. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return names;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetBuildingPurchaseResources() {
+        Map<Integer, Integer> resources = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.building";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    resources.put(rs.getInt("buildingid"), rs.getInt("rid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building purchase resource info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return resources;
+    }
+
+    @Override
+    public Map<Integer, String> GetBuildingNames() {
+        Map<Integer, String> names = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.building";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    names.put(rs.getInt("buildingid"), rs.getString("buildingname"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building name info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return names;
+    }
+
+    @Override
+    public Map<Integer, Integer> GetBuildingResourcesHeld() {
+        Map<Integer, Integer> held = new HashMap<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resheld";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    held.put(rs.getInt("buildingid"), rs.getInt("rid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get building held resource info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return held;
+    }
+
+    @Override
+    public Upgrade GetBuildingUpgradeInfo(int buildingID, int buildingLevel) {
+        Upgrade up = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.buildingupgrades where btid=? and buildinglevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, buildingID);
+                stmt.setInt(2, buildingLevel);
+                ResultSet rs = stmt.executeQuery();
+
+                String name = BuildingHandler.GetBuildingName(buildingID);
+                String upResName = ResourceManager.GetResourceName(BuildingHandler.GetBuildingPurchaseResource(buildingID));
+                if (rs.next()){
+                    up = new Upgrade(name, rs.getInt("upcost"), rs.getInt("updays"), rs.getInt("uphrs"),
+                            rs.getInt("upmins"), rs.getInt("upsecs"), false, upResName, buildingLevel);
+                }
+                else {
+                    up = new Upgrade(name, 0, 0, 0, 0, 0,
+                            true, upResName, buildingLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get buildingID=" + buildingID + ", buildingLevel=" + buildingLevel +" upgrade info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return up;
+    }
+
+    @Override
+    public int GetMaxNumberBuildings(int buildingTypeID, int townHallLevel) {
+        int max = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.maxbuildings where btid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, buildingTypeID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    max = rs.getInt("max" + townHallLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return max;
+    }
+
+    @Override
+    public int GetMaxBuildingLevel(int buildingTypeID, int townHallLevel) {
+        int max = 0;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.maxbuildinglevel where btid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, buildingTypeID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    max = rs.getInt("max" + townHallLevel);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get buildingTypeID=" + buildingTypeID + ", townHallLevel=" + townHallLevel +" info. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return max;
+    }
+
+    @Override
+    public TownHall GetTownHall(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        TownHall th = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.th natural join req.nextcost where thlevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    th = new TownHall(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                        BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                        rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                        currentlyUpgrading, buildID, rs.getInt("nextcost"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Town Hall info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return th;
+    }
+
+    @Override
+    public ArmyCamp GetArmyCamp(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        ArmyCamp camp = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.armycamp where aclevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    camp = new ArmyCamp(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("maxspace"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Army Camp info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return camp;
+    }
+
+    @Override
+    public Barracks GetBarracks(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        Barracks barracks = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.rax where raxlevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    barracks = new Barracks(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Barracks info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return barracks;
+    }
+
+    @Override
+    public Lab GetLab(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        Lab lab = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.lab where lablevel=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    lab = new Lab(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("maxtrooplevel"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Lab info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return lab;
+    }
+
+    @Override
+    public ResourceCollector GetCollector(int buildID, int level, int buildingID, boolean currentlyUpgrading, int amount) {
+        ResourceCollector coll = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resgen cross join req.resheld where resgenlevel=? and buildingid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                stmt.setInt(2, buildingID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    coll = new ResourceCollector(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("perhr"), rs.getInt("rid"), amount);
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b, amount=%d " +
+                        "ResourceCollector info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading, amount) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return coll;
+    }
+
+    @Override
+    public ResourceStorage GetStorage(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        ResourceStorage store = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.resstore cross join req.resheld where resstorelevel=? and buildingid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                stmt.setInt(2, buildingID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    store = new ResourceStorage(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getInt("maxcap"), rs.getInt("rid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "ResourceStorage info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return store;
+    }
+
+    @Override
+    public Defense GetDefense(int buildID, int level, int buildingID, boolean currentlyUpgrading) {
+        Defense def = null;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from req.defstats natural join req.defense where deflevel=? and buildingid=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, level);
+                stmt.setInt(2, buildingID);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()){
+                    int rid = BuildingHandler.GetBuildingPurchaseResource(buildingID);
+                    def = new Defense(buildingID, BuildingHandler.GetBuildingType(buildingID),
+                            BuildingHandler.GetBuildingName(buildingID), rid, ResourceManager.GetResourceName(rid),
+                            rs.getInt("hp"), level, GetBuildingUpgradeInfo(buildingID, level+1),
+                            currentlyUpgrading, buildID, rs.getBoolean("atkair"), rs.getFloat("hitspeed"),
+                            rs.getInt("range"), rs.getBoolean("splash"),
+                            rs.getFloat("splashradius"), rs.getInt("dmg"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println(String.format("Failed to get buildID=%d, level=%d, buildingID=%d, currentlyUpgrading=%b " +
+                        "Defense info. Trying again...: ", buildID, level, buildingID, currentlyUpgrading) + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return def;
+    }
+
+
 }
