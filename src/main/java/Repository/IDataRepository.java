@@ -23,7 +23,7 @@ public interface IDataRepository extends IRepository {
     public long GetBuildingUpgradeTimeRemainingSeconds(int profID, int buildID);
     public List<PaymentAccount> GetPaymentAccounts(int profID);
     public Map<Integer, Integer> GetUserTroopLevels(int profID); // TroopID -> TroopLevel
-    public Map<Integer, Integer> GetPlayerBuildingLineup(int profID);
+    public Map<Integer, Integer> GetPlayerBuildingLineup(int profID); // buildID -> pos
     public List<Building> GetPlayerBuildings(int profID);
     public int GetResourceAmount(int profID, int buildID);
     public Map<Integer, Integer> GetPlayerArmy(int profID);

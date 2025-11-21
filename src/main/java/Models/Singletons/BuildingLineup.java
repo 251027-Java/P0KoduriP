@@ -16,7 +16,7 @@ public class BuildingLineup {
     private Building[] lineup = new Building[maxBuildings];
 
     public static void LoadBuildingLineup(int profID){
-        buildingLineup.Reset();
+        buildingLineup.lineup = new Building[maxBuildings];
 
         DataService dServ = Game.getInstance().GetDataService();
         RequirementService rServ = Game.getInstance().GetRequirementService();
@@ -24,9 +24,6 @@ public class BuildingLineup {
         for (Map.Entry<Integer, Integer> e : dServ.GetPlayerBuildingLineup(profID).entrySet()){
             buildingLineup.lineup[e.getValue()] = BuildingHandler.getInstance().GetBuilding(e.getKey());
         }
-    }
-    public void Reset(){
-        lineup = new Building[maxBuildings];
     }
     public void AddBuilding(Building building, int pos){
         lineup[pos] = building;

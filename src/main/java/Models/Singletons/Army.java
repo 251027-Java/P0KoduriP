@@ -22,6 +22,10 @@ public class Army {
     private Map<Integer, List<Troop>> troops; //troopID -> list of troops
 
     public static void LoadArmy(int profID){
+        army.camps = new ArrayList<>();
+        army.maxSpace = 0;
+        army.currSpace = 0;
+
         army.troopCounts = Game.getInstance().GetDataService().GetPlayerArmy(profID);
     }
 
@@ -62,11 +66,5 @@ public class Army {
         if (a.isEmpty()) a = "There are no troops remaining.\n";
 
         return a.substring(0, a.length()-1);
-    }
-
-    public void Reset(){
-        camps = new ArrayList<>();
-        maxSpace = 0;
-        currSpace = 0;
     }
 }

@@ -524,6 +524,7 @@ public class PostgreDataRepo implements IDataRepository{
 
                 if (rs.next()){
                     id = rs.getInt("upgradingtroopid");
+                    if (rs.wasNull()) id = -1;
                 }
 
                 successfulInit = true;

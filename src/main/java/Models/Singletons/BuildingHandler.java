@@ -34,7 +34,7 @@ public class BuildingHandler {
         for (Building b : Game.getInstance().GetDataService().GetPlayerBuildings(profID)){
             handler.buildings.put(b.GetBuildID(), b);
 
-            switch (BuildingHandler.GetBuildingName(b.GetBuildingID())){
+            switch (GetBuildingName(b.GetBuildingID())){
                 case "Army Camp":
                     Army.getInstance().AddArmyCamp((ArmyCamp) b);
                     break;
