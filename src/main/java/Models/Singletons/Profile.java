@@ -77,6 +77,9 @@ public class Profile {
     public int GetUpgradingTroop(){ //unknown value if troop is actually not upgrading
         return upgradingTroop;
     }
+    public long GetTroopUpgradeTimeRemainingSeconds(){
+        return Game.getInstance().GetDataService().GetTroopUpgradeTimeRemainingSeconds(id);
+    }
 
     public void ChangeTrophies(int changeTrophies){
         trophies += changeTrophies;

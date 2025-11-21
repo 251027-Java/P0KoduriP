@@ -31,12 +31,12 @@ public class Upgrade {
         nextLevel = nextUpgradeLevel;
     }
 
-    public int UpgradeCost() { return upCost; }
-    public int UpgradeDays() { return upDays; }
-    public int UpgradeHours() { return upHours; }
-    public int UpgradeMinutes() { return upMinutes; }
-    public int UpgradeSeconds() { return upSeconds; }
-    public boolean IsMaxLevelRightNow() { return maxLevelRightNow; }
+    public int GetUpgradeCost() { return upCost; }
+    public int GetUpgradeDays() { return upDays; }
+    public int GetUpgradeHours() { return upHours; }
+    public int GetUpgradeMinutes() { return upMinutes; }
+    public int GetUpgradeSeconds() { return upSeconds; }
+    public boolean GetIsMaxLevelRightNow() { return maxLevelRightNow; }
 
     public String UpgradeInfo(){
         if (maxLevelRightNow) return String.format("%s is at max level!", name);
@@ -45,7 +45,7 @@ public class Upgrade {
         return info + Time.FormatTime(upDays, upHours, upMinutes, upSeconds) + "\n";
     }
 
-    public boolean CanBeUpgraded(int resourceAmount){
+    public boolean GetCanBeUpgraded(int resourceAmount){
         return resourceAmount >= upCost;
     }
 }

@@ -1,5 +1,6 @@
 package Models.Abstracts;
 
+import Application.Game;
 import Util.Models.Upgrade;
 
 public abstract class Building {
@@ -70,6 +71,9 @@ public abstract class Building {
     }
     public boolean GetUpgrading(){
         return upgrading;
+    }
+    public long GetBuildingUpgradeTimeRemainingSeconds(int profID){
+        return Game.getInstance().GetDataService().GetBuildingUpgradeTimeRemainingSeconds(profID, buildid);
     }
 
     public int GetBuildID(){
