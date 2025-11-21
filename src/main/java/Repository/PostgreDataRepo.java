@@ -707,7 +707,7 @@ public class PostgreDataRepo implements IDataRepository{
         boolean successfulInit = false;
         while (!successfulInit) {
             try {
-                String sql = "select * from data.playerbuildinglevels where profid=?";
+                String sql = "select * from data.playerbuildinglvls where profid=?";
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, profID);
                 ResultSet rs = stmt.executeQuery();

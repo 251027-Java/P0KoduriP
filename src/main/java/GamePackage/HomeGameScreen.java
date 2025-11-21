@@ -1,6 +1,7 @@
 package GamePackage;
 
 import Application.Game;
+import Models.Singletons.*;
 import Service.DataService;
 import Util.Screen;
 import Util.UserInput;
@@ -56,6 +57,10 @@ public class HomeGameScreen {
     }
 
     private static void LoadProfile(int profID){
-
+        Profile.LoadProfile(profID);
+        TroopFactoryHandler.LoadTroopInfo(profID);
+        BuildingHandler.LoadBuildings(profID);
+        BuildingLineup.LoadBuildingLineup(profID); //BuildingHandler buildings need to be loaded first
+        Army.LoadArmy(profID);
     }
 }
