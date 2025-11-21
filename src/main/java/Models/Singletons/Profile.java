@@ -4,8 +4,9 @@ import Application.Game;
 import Models.PaymentAccount;
 import Service.DataService;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Profile {
     private final static Profile profile = new Profile();
@@ -15,7 +16,7 @@ public class Profile {
     private static int id;
 
     private String name;
-    private List<PaymentAccount> payOptions = new ArrayList<>();
+    private Map<Long, PaymentAccount> payOptions;
 
     private int trophies;
     private int gems;
@@ -37,23 +38,24 @@ public class Profile {
         gems = profGems;
         upgradingTroop = upgradingTroopID;
         troopIsUpgrading = troopCurrentlyUpgrading;
-        payOptions = paymentAccounts;
+
+        payOptions = new HashMap<>();
+        for (PaymentAccount p : paymentAccounts){
+            payOptions.put(p.GetCardNumber(), p);
+        }
     }
     public static int GetID(){
         return id;
     }
 
     public void AddPaymentOption(PaymentAccount paymentAccount){
-        payOptions.add(paymentAccount);
+        payOptions.put(paymentAccount.GetCardNumber(), paymentAccount);
     }
     public void RemovePaymentOption(PaymentAccount paymentAccount){
         payOptions.remove(paymentAccount);
     }
-    public List<PaymentAccount> GetPaymentOptions(){
-        return new ArrayList<>(payOptions);
-    }
-    public void LoadPaymentOptions(){
-
+    public Map<Long, PaymentAccount> GetPaymentOptions(){
+    return payOptions;
     }
     public String GetName(){
         return name;
@@ -85,9 +87,11 @@ public class Profile {
     public void ChangeTrophies(int changeTrophies){
         trophies += changeTrophies;
         if (trophies < 0) trophies = 0;
+        Game.getInstance().GetDataService().SetTrophies(id, trophies);
     }
     public void ChangeGems(int changeGems){
         gems += changeGems;
         if (gems < 0) gems = 0;
+        Game.getInstance().GetDataService().SetGems(id, gems);
     }
 }

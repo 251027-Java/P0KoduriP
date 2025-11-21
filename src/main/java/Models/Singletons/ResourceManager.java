@@ -31,6 +31,8 @@ public class ResourceManager {
     private final Map<Integer, Integer> collectorsHP = new HashMap<>(); //resourceID -> total collector HP
     private final Map<Integer, Integer> storagesHP = new HashMap<>(); //resourceID -> total storage HP
 
+    private final static List<Integer> resourceIDs = new ArrayList<>();
+
     public static void GenerateValues(){
         RequirementService serv = Game.getInstance().GetRequirementService();
 
@@ -42,6 +44,7 @@ public class ResourceManager {
         resourceHeld = serv.GetBuildingResourcesHeld();
     }
     private void AddResource(int resourceID){
+        resourceIDs.add(resourceID);
         resources.put(resourceID, 0);
         maxResources.put(resourceID, 0);
         collectors.put(resourceID, new ArrayList<>());
@@ -121,10 +124,14 @@ public class ResourceManager {
     public static int GetBuildingResourceHeld(int resourceID){
         return resourceHeld.get(resourceID);
     }
-
     public int GetResources(int resourceID){
         return resources.get(resourceID);
     }
+
+    public static List<Integer> GetResourceIDs(){
+        return resourceIDs;
+    }
+
     public void Reset(){
         resources.replaceAll((k, v) -> 0);
         maxResources.replaceAll((k, v) -> 0);

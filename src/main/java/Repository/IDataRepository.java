@@ -46,4 +46,6 @@ public interface IDataRepository extends IRepository {
     public boolean CreateProfile(int profID, String name); //true if successful creation, false if not
     public void UpdateCollectedResourcesTime(int profID);
     public void SetResourceAmount(int profID, int buildID, int amount);
+    public void SetGems(int profID, int gems);
+    public void SetTrophies(int profID, int trophies);
 }

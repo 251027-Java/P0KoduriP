@@ -1298,7 +1298,7 @@ public class PostgreDataRepo implements IDataRepository{
 
                 successfulInit = true;
             } catch (Exception e) {
-                IO.println("Failed to get hours since last collected resources. Try again: " + e);
+                IO.println("Failed to update time when last collected resources. Trying again...: " + e);
             }
         }
     }
@@ -1318,7 +1318,45 @@ public class PostgreDataRepo implements IDataRepository{
 
                 successfulInit = true;
             } catch (Exception e) {
-                IO.println("Failed to get hours since last collected resources. Try again: " + e);
+                IO.println("Failed to update resource amount of a resource building. Trying again...: " + e);
+            }
+        }
+    }
+
+    @Override
+    public void SetGems(int profID, int gems) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.player set gems=? where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, gems);
+                stmt.setInt(2, profID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e) {
+                IO.println("Failed to update # gems. Trying again...: " + e);
+            }
+        }
+    }
+
+    @Override
+    public void SetTrophies(int profID, int trophies) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.player set trophies=? where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, trophies);
+                stmt.setInt(2, profID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e) {
+                IO.println("Failed to update # trophies. Trying again...: " + e);
             }
         }
     }

@@ -1,5 +1,6 @@
 package Models;
 
+import Application.Game;
 import Models.Singletons.GemShop;
 
 import java.util.Map;
@@ -23,26 +24,25 @@ public class PaymentAccount {
         return GemShop.GetAvailableOptions(balance);
     }
 
-    public void Deposit(int usd){
-        balance += usd;
+    public void Deposit(int depositUSD){
+        balance += depositUSD;
+        Game.getInstance().GetDataService().MakeDeposit(depositUSD, cardno, expmonth, expyr, pin);
     }
 
-    public int Withdraw(int usd){
-        int withdraw = usd;
-        if (withdraw > balance) withdraw = balance;
+    public int Withdraw(int withdrawUSD){
+        if (withdrawUSD > balance) withdrawUSD = balance;
 
-        balance -= withdraw;
+        balance -= withdrawUSD;
 
-        return withdraw;
+        Game.getInstance().GetDataService().MakeWithdrawal(withdrawUSD, cardno, expmonth, expyr, pin);
+        return withdrawUSD;
     }
 
+    public long GetCardNumber(){
+        return cardno;
+    }
     public int GetBalance(){
         return balance;
-    }
-
-    public void GemPurchase(int usd){
-        int gems = GemShop.GetGems(usd);
-        if (gems > 0) Withdraw(usd);
     }
 
     @Override
@@ -53,6 +53,6 @@ public class PaymentAccount {
 
         PaymentAccount o = (PaymentAccount) obj;
 
-        return cardno==o.cardno && expmonth==o.expmonth && expyr==o.expyr;
+        return cardno==o.cardno && expmonth==o.expmonth && expyr==o.expyr && pin==o.pin;
     }
 }

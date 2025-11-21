@@ -26,7 +26,6 @@ public class GemShop {
     }
 
     public static int GetGems(int usd){
-        if (!shop.containsKey(usd)) return 0;
-        return shop.get(usd);
+        return shop.getOrDefault(usd, 0);
     }
 }

@@ -131,6 +131,12 @@ public class DataService implements IService{
     public void SetResourceAmount(int profID, int buildID, int amount){
         dRepo.SetResourceAmount(profID, buildID, amount);
     }
+    public void SetGems(int profID, int gems){
+        dRepo.SetGems(profID, gems);
+    }
+    public void SetTrophies(int profID, int trophies){
+        dRepo.SetTrophies(profID, trophies);
+    }
 
     @Override
     public void DropRepo() {
