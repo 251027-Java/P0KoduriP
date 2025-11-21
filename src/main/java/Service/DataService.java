@@ -125,6 +125,12 @@ public class DataService implements IService{
     public boolean CreateProfile(int profID, String name){
         return dRepo.CreateProfile(profID, name);
     }
+    public void UpdateCollectedResourcesTime(int profID){
+        dRepo.UpdateCollectedResourcesTime(profID);
+    }
+    public void SetResourceAmount(int profID, int buildID, int amount){
+        dRepo.SetResourceAmount(profID, buildID, amount);
+    }
 
     @Override
     public void DropRepo() {

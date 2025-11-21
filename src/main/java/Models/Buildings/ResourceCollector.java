@@ -1,7 +1,10 @@
 package Models.Buildings;
 
+import Application.Game;
+import GamePackage.HomeGameScreen;
 import Models.Abstracts.Building;
 import Models.Singletons.ResourceManager;
+import Service.DataService;
 import Util.Models.Upgrade;
 
 public class ResourceCollector extends Building {
@@ -33,15 +36,21 @@ public class ResourceCollector extends Building {
         return ResourceManager.MaxCollectionHours * genRate;
     }
     public int CollectResources(float hours) {
+        DataService serv = Game.getInstance().GetDataService();
+
         int newAmount = amount + (int) (hours * genRate);
         int maxCollectorCapacity = GetMaxCapacity();
 
         if (newAmount > maxCollectorCapacity) newAmount = maxCollectorCapacity;
         amount = 0;
+        serv.SetResourceAmount(HomeGameScreen.GetProfID(), GetBuildID(), amount);
 
         return newAmount;
     }
     public void RestoreResources(int restoreAmount){
         amount += restoreAmount;
+
+        DataService serv = Game.getInstance().GetDataService();
+        serv.SetResourceAmount(HomeGameScreen.GetProfID(), GetBuildID(), amount);
     }
 }

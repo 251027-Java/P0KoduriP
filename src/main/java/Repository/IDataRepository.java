@@ -44,4 +44,6 @@ public interface IDataRepository extends IRepository {
     public int GetBalance(long cardNo, int expMo, int expYr, int pin);
 
     public boolean CreateProfile(int profID, String name); //true if successful creation, false if not
+    public void UpdateCollectedResourcesTime(int profID);
+    public void SetResourceAmount(int profID, int buildID, int amount);
 }

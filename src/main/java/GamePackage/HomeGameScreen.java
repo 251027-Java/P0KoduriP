@@ -11,6 +11,7 @@ import java.util.List;
 public class HomeGameScreen {
     private static final int failedProfileCreation = -1;
     private static DataService serv;
+    private static int profileID;
 
     public static void StartHomeGameScreen(){
         serv = Game.getInstance().GetDataService();
@@ -57,10 +58,22 @@ public class HomeGameScreen {
     }
 
     private static void LoadProfile(int profID){
+        profileID = profID;
+
+        //reset whatever is necessary
+        ResourceManager.getInstance().Reset();
+
+        //load new profile
         Profile.LoadProfile(profID);
         TroopFactoryHandler.LoadTroopInfo(profID);
         BuildingHandler.LoadBuildings(profID);
         BuildingLineup.LoadBuildingLineup(profID); //BuildingHandler buildings need to be loaded first
         Army.LoadArmy(profID);
+
+        BaseScreen.ShowBaseScreen();
+    }
+
+    public static int GetProfID(){
+        return profileID;
     }
 }

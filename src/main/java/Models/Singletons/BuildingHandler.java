@@ -3,6 +3,8 @@ package Models.Singletons;
 import Application.Game;
 import Models.Abstracts.Building;
 import Models.Buildings.ArmyCamp;
+import Models.Buildings.ResourceCollector;
+import Models.Buildings.ResourceStorage;
 import Service.RequirementService;
 
 import java.util.HashMap;
@@ -34,9 +36,15 @@ public class BuildingHandler {
         for (Building b : Game.getInstance().GetDataService().GetPlayerBuildings(profID)){
             handler.buildings.put(b.GetBuildID(), b);
 
-            switch (GetBuildingName(b.GetBuildingID())){
-                case "Army Camp":
+            switch (GetBuildingTypeName(b.GetBuildingTypeID())){
+                case "camp":
                     Army.getInstance().AddArmyCamp((ArmyCamp) b);
+                    break;
+                case "collector":
+                    ResourceManager.getInstance().AddCollector((ResourceCollector) b);
+                    break;
+                case "storage":
+                    ResourceManager.getInstance().AddStorage((ResourceStorage) b);
                     break;
             }
         }

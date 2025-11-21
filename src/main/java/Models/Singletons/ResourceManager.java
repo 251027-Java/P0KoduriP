@@ -1,8 +1,11 @@
 package Models.Singletons;
 
 import Application.Game;
+import GamePackage.BaseScreen;
+import GamePackage.HomeGameScreen;
 import Models.Buildings.ResourceCollector;
 import Models.Buildings.ResourceStorage;
+import Service.DataService;
 import Service.RequirementService;
 
 import java.util.ArrayList;
@@ -38,8 +41,7 @@ public class ResourceManager {
 
         resourceHeld = serv.GetBuildingResourcesHeld();
     }
-
-    public void AddResource(int resourceID){
+    private void AddResource(int resourceID){
         resources.put(resourceID, 0);
         maxResources.put(resourceID, 0);
         collectors.put(resourceID, new ArrayList<>());
@@ -57,6 +59,7 @@ public class ResourceManager {
         int id = rs.GetResourceStoredID();
         storages.get(id).add(rs);
         UpdateStorage(id, rs.GetMaxCapacity(), rs.GetMaxHP());
+        resources.compute(id, (k, v) -> v + Game.getInstance().GetDataService().GetResourceAmount(HomeGameScreen.GetProfID(), rs.GetBuildID()));
     }
     public void UpdateCollector(int resourceID, int oldHP, int newHP){
         UpdateCollector(resourceID, newHP - oldHP);
@@ -72,26 +75,37 @@ public class ResourceManager {
         storagesHP.compute(resourceID, (k, hp) -> Math.max(0, hp + changeHP));
     }
 
-    public void AddResources(int resourceID, int addedResources){
-        int maxCapacity = maxResources.get(resourceID);
-        resources.compute(resourceID, (k, res) -> Math.min(maxCapacity, res + addedResources));
-    }
-    public void CollectResources(int resourceID){
-        int maxCapacity = maxResources.get(resourceID);
-        int currAmount = resources.get(resourceID);
+    public int AddResources(int resourceID, int addedResources){
+        DataService serv = Game.getInstance().GetDataService();
 
-        for (ResourceCollector rc : collectors.get(resourceID)){
-            int amount = rc.CollectResources(0);
-            currAmount += amount;
+        int maxCapacity = maxResources.get(resourceID);
+        int newAmount = resources.get(resourceID) + addedResources;
 
-            if (currAmount > maxCapacity){
-                rc.RestoreResources(currAmount - maxCapacity);
-                currAmount = maxCapacity;
-                break;
-            }
+        int refund = 0;
+        if (newAmount > maxCapacity) {
+            refund = newAmount - maxCapacity;
+            newAmount = maxCapacity;
         }
 
-        resources.put(resourceID, currAmount);
+        resources.put(resourceID, newAmount);
+
+        for (ResourceStorage rs : storages.get(resourceID)){
+            int cap = rs.GetMaxCapacity();
+            int amount = Math.min(cap, newAmount);
+            newAmount -= amount;
+            serv.SetResourceAmount(HomeGameScreen.GetProfID(), rs.GetBuildID(), amount);
+        }
+
+        return refund;
+    }
+    public void CollectResources(int resourceID){
+        DataService serv = Game.getInstance().GetDataService();
+
+        for (ResourceCollector rc : collectors.get(resourceID)){
+            rc.RestoreResources(AddResources(resourceID, rc.CollectResources(serv.GetHoursSinceLastCollectedResources(HomeGameScreen.GetProfID()))));
+        }
+
+        serv.UpdateCollectedResourcesTime(HomeGameScreen.GetProfID());
     }
     public boolean SpendResources(int resourceID, int spendAmount){ //returns true if successfully spent, false if not (no change)
         int currAmount = resources.get(resourceID);

@@ -342,18 +342,23 @@ public class PostgreDataRepo implements IDataRepository{
     @Override
     public float GetHoursSinceLastCollectedResources(int profID) {
         float hours = 0;
+        boolean successfulInit = false;
 
-        try {
-            String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastcollected)) AS secs FROM data.player where profid=?;";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, profID);
-            ResultSet rs = stmt.executeQuery();
+        while (!successfulInit) {
+            try {
+                String sql = "SELECT EXTRACT(EPOCH FROM (NOW() - lastcollected)) AS secs FROM data.player where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()){
-                hours = Math.min(24 * Game.MaxDaysTracked, Time.GetTotalDecimalHours(rs.getLong("secs")));
+                if (rs.next()) {
+                    hours = Math.min(24 * Game.MaxDaysTracked, Time.GetTotalDecimalHours(rs.getLong("secs")));
+                }
+
+                successfulInit = true;
+            } catch (Exception e) {
+                IO.println("Failed to get hours since last collected resources. Try again: " + e);
             }
-        } catch (Exception e) {
-            IO.println("Failed to get hours since last collected resources. Try again: " + e);
         }
 
         return hours;
@@ -1276,6 +1281,44 @@ public class PostgreDataRepo implements IDataRepository{
                         IO.println("Sleep likely interrupted: " + e2);
                     }
                 }
+            }
+        }
+    }
+
+    @Override
+    public void UpdateCollectedResourcesTime(int profID) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.player set lastcollected=NOW() where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e) {
+                IO.println("Failed to get hours since last collected resources. Try again: " + e);
+            }
+        }
+    }
+
+    @Override
+    public void SetResourceAmount(int profID, int buildID, int amount) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.playerresourcebuildings set amount=? where profid=? and buildid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, amount);
+                stmt.setInt(2, profID);
+                stmt.setInt(3, buildID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e) {
+                IO.println("Failed to get hours since last collected resources. Try again: " + e);
             }
         }
     }
