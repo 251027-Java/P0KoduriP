@@ -6,6 +6,6 @@ public class BaseScreen {
     public static void ShowBaseScreen(){
         Screen.Clear();
 
-        
+
     }
 }

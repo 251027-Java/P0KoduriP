@@ -3,6 +3,7 @@ package Models.Buildings;
 import Application.Game;
 import GamePackage.HomeGameScreen;
 import Models.Abstracts.Building;
+import Models.Singletons.Profile;
 import Models.Singletons.ResourceManager;
 import Service.DataService;
 import Util.Models.Upgrade;
@@ -43,7 +44,7 @@ public class ResourceCollector extends Building {
 
         if (newAmount > maxCollectorCapacity) newAmount = maxCollectorCapacity;
         amount = 0;
-        serv.SetResourceAmount(HomeGameScreen.GetProfID(), GetBuildID(), amount);
+        serv.SetResourceAmount(Profile.GetID(), GetBuildID(), amount);
 
         return newAmount;
     }
@@ -51,6 +52,6 @@ public class ResourceCollector extends Building {
         amount += restoreAmount;
 
         DataService serv = Game.getInstance().GetDataService();
-        serv.SetResourceAmount(HomeGameScreen.GetProfID(), GetBuildID(), amount);
+        serv.SetResourceAmount(Profile.GetID(), GetBuildID(), amount);
     }
 }

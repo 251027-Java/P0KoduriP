@@ -59,7 +59,7 @@ public class ResourceManager {
         int id = rs.GetResourceStoredID();
         storages.get(id).add(rs);
         UpdateStorage(id, rs.GetMaxCapacity(), rs.GetMaxHP());
-        resources.compute(id, (k, v) -> v + Game.getInstance().GetDataService().GetResourceAmount(HomeGameScreen.GetProfID(), rs.GetBuildID()));
+        resources.compute(id, (k, v) -> v + Game.getInstance().GetDataService().GetResourceAmount(Profile.GetID(), rs.GetBuildID()));
     }
     public void UpdateCollector(int resourceID, int oldHP, int newHP){
         UpdateCollector(resourceID, newHP - oldHP);
@@ -93,7 +93,7 @@ public class ResourceManager {
             int cap = rs.GetMaxCapacity();
             int amount = Math.min(cap, newAmount);
             newAmount -= amount;
-            serv.SetResourceAmount(HomeGameScreen.GetProfID(), rs.GetBuildID(), amount);
+            serv.SetResourceAmount(Profile.GetID(), rs.GetBuildID(), amount);
         }
 
         return refund;
@@ -102,10 +102,10 @@ public class ResourceManager {
         DataService serv = Game.getInstance().GetDataService();
 
         for (ResourceCollector rc : collectors.get(resourceID)){
-            rc.RestoreResources(AddResources(resourceID, rc.CollectResources(serv.GetHoursSinceLastCollectedResources(HomeGameScreen.GetProfID()))));
+            rc.RestoreResources(AddResources(resourceID, rc.CollectResources(serv.GetHoursSinceLastCollectedResources(Profile.GetID()))));
         }
 
-        serv.UpdateCollectedResourcesTime(HomeGameScreen.GetProfID());
+        serv.UpdateCollectedResourcesTime(Profile.GetID());
     }
     public boolean SpendResources(int resourceID, int spendAmount){ //returns true if successfully spent, false if not (no change)
         int currAmount = resources.get(resourceID);

@@ -12,7 +12,8 @@ public class Profile {
     private Profile() {}
     public static Profile getInstance() {return profile;}
 
-    private int id;
+    private static int id;
+
     private String name;
     private List<PaymentAccount> payOptions = new ArrayList<>();
 
@@ -38,6 +39,9 @@ public class Profile {
         troopIsUpgrading = troopCurrentlyUpgrading;
         payOptions = paymentAccounts;
     }
+    public static int GetID(){
+        return id;
+    }
 
     public void AddPaymentOption(PaymentAccount paymentAccount){
         payOptions.add(paymentAccount);
@@ -50,9 +54,6 @@ public class Profile {
     }
     public void LoadPaymentOptions(){
 
-    }
-    public int GetID(){
-        return id;
     }
     public String GetName(){
         return name;

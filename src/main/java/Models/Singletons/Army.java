@@ -21,12 +21,12 @@ public class Army {
     private Map<Integer, Integer> troopCounts; //troopID -> #troops
     private Map<Integer, List<Troop>> troops; //troopID -> list of troops
 
-    public static void LoadArmy(int profID){
+    public static void LoadArmy(){
         army.camps = new ArrayList<>();
         army.maxSpace = 0;
         army.currSpace = 0;
 
-        army.troopCounts = Game.getInstance().GetDataService().GetPlayerArmy(profID);
+        army.troopCounts = Game.getInstance().GetDataService().GetPlayerArmy(Profile.GetID());
     }
 
     public void StartBattle(){

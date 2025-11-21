@@ -15,13 +15,13 @@ public class BuildingLineup {
     private static final int maxBuildings = 12;
     private Building[] lineup = new Building[maxBuildings];
 
-    public static void LoadBuildingLineup(int profID){
+    public static void LoadBuildingLineup(){
         buildingLineup.lineup = new Building[maxBuildings];
 
         DataService dServ = Game.getInstance().GetDataService();
         RequirementService rServ = Game.getInstance().GetRequirementService();
 
-        for (Map.Entry<Integer, Integer> e : dServ.GetPlayerBuildingLineup(profID).entrySet()){
+        for (Map.Entry<Integer, Integer> e : dServ.GetPlayerBuildingLineup(Profile.GetID()).entrySet()){
             buildingLineup.lineup[e.getValue()] = BuildingHandler.getInstance().GetBuilding(e.getKey());
         }
     }

@@ -24,11 +24,11 @@ public class TroopFactoryHandler {
             handler.factories.put(factory.GetTroopID(), factory);
         }
     }
-    public static void LoadTroopInfo(int profID){
+    public static void LoadTroopInfo(){
         DataService dServ = Game.getInstance().GetDataService();
         RequirementService rServ = Game.getInstance().GetRequirementService();
 
-        for (Map.Entry<Integer, Integer> e : dServ.GetUserTroopLevels(profID).entrySet()){
+        for (Map.Entry<Integer, Integer> e : dServ.GetUserTroopLevels(Profile.GetID()).entrySet()){
             int troopID = e.getKey();
             int troopLevel = e.getValue();
 

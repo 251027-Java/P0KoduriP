@@ -31,9 +31,9 @@ public class BuildingHandler {
         buildingPurchaseResources = serv.GetBuildingPurchaseResources();
         buildingNames = serv.GetBuildingNames();
     }
-    public static void LoadBuildings(int profID){
+    public static void LoadBuildings(){
         handler.buildings = new HashMap<>();
-        for (Building b : Game.getInstance().GetDataService().GetPlayerBuildings(profID)){
+        for (Building b : Game.getInstance().GetDataService().GetPlayerBuildings(Profile.GetID())){
             handler.buildings.put(b.GetBuildID(), b);
 
             switch (GetBuildingTypeName(b.GetBuildingTypeID())){
