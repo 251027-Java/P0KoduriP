@@ -53,7 +53,7 @@ public class BaseScreen {
     private static void DisplayInfo(){
         IO.println(String.format("%s (ID = %d)", Profile.getInstance().GetName(), Profile.GetID()));
         IO.println("Account created on " + serv.GetCreationDate(Profile.GetID()));
-        IO.println("Town Hall Level " + BuildingHandler.getInstance().GetBuilding(0));
+        IO.println("Town Hall Level " + BuildingHandler.getInstance().GetBuilding(0).GetLevel());
         IO.println(Profile.getInstance().GetTrophies() + " Trophies");
         for (int i : ResourceManager.GetResourceIDs()){
             IO.println(ResourceManager.getInstance().GetResources(i) + " " + ResourceManager.GetResourceName(i));
