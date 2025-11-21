@@ -60,6 +60,6 @@ public class BaseScreen {
         }
         IO.println(Profile.getInstance().GetGems() + " Gems");
 
-        UserInput.GetUserString("\nEnter any key to go back and continue", false);
+        UserInput.GetUserString("\nEnter any key and hit enter to go back and continue", false);
     }
 }

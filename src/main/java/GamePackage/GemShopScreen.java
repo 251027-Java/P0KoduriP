@@ -63,6 +63,6 @@ public class GemShopScreen {
         IO.println("Your new balance (#" + pa.GetCardNumber() + ") is $" + pa.GetBalance() + ".");
         IO.println("You now have " + Profile.getInstance().GetGems() + " gems.");
 
-        UserInput.GetUserString("\nEnter any key to go back and continue", false);
+        UserInput.GetUserString("\nEnter any key and hit enter to go back and continue", false);
     }
 }
