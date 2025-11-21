@@ -1,7 +1,11 @@
 package Application;
 
+import Util.Screen;
+
 public class Main {
     public static void main(String[] args){
+        Screen.Clear();
+
         IO.println("Application starting...");
 
         boolean resetRequirements = false;
