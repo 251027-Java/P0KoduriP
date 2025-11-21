@@ -8,10 +8,7 @@ import Models.TroopFactory;
 import Util.Models.Upgrade;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PostgreReqRepo implements IRequirementRepository{
     private final Connection conn;
@@ -581,7 +578,7 @@ public class PostgreReqRepo implements IRequirementRepository{
 
     @Override
     public Map<Integer, Integer> GetGemShopOptions() {
-        Map<Integer, Integer> options = new HashMap<>();
+        Map<Integer, Integer> options = new TreeMap<>();
         boolean successfulInit = false;
 
         while (!successfulInit) {

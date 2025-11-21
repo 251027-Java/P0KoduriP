@@ -21,9 +21,7 @@ public class BaseScreen {
             Screen.Clear();
 
             input = UserInput.GetUserInt("\n0: Back\n1: Display Info\n2: Gem Shop\n" +
-                            "3: Add Game Accounts to Payment Account\n4: Remove Game Accounts from Payment Account\n" +
-                            "5: Deposit Money\n6: Withdraw Money\n7: View Balance\nEnter which # you want to do",false,
-                    n -> (0 <= n && n <= 7));
+                            "Enter which # you want to do",false,n -> (0 <= n && n <= 2));
             switch (input) {
                 case 1:
                     DisplayInfo();
@@ -31,21 +29,6 @@ public class BaseScreen {
                 case 2:
                     GemShopScreen.getInstance().OpenShop();
                     break;
-                /*case 3:
-                    AttachGameAccounts();
-                    break;
-                case 4:
-                    DetachGameAccounts();
-                    break;
-                case 5:
-                    MakeDeposit();
-                    break;
-                case 6:
-                    MakeWithdrawal();
-                    break;
-                case 7:
-                    ViewBalance();
-                    break;*/
             }
         } while (input != 0);
     }

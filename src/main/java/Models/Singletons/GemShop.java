@@ -4,6 +4,7 @@ import Application.Game;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class GemShop {
     private GemShop(){}
@@ -15,9 +16,9 @@ public class GemShop {
     }
 
     public static Map<Integer, Integer> GetAvailableOptions(int usd){
-        Map<Integer, Integer> options = new HashMap<>();
+        Map<Integer, Integer> options = new TreeMap<>();
         for (Map.Entry<Integer, Integer> e : shop.entrySet()){
-            if (e.getValue() <= usd) options.put(e.getKey(), e.getValue());
+            if (e.getKey() <= usd) options.put(e.getKey(), e.getValue());
         }
         return options;
     }

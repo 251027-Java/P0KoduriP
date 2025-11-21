@@ -7,6 +7,7 @@ import Service.DataService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Profile {
     private final static Profile profile = new Profile();
@@ -39,7 +40,7 @@ public class Profile {
         upgradingTroop = upgradingTroopID;
         troopIsUpgrading = troopCurrentlyUpgrading;
 
-        payOptions = new HashMap<>();
+        payOptions = new TreeMap<>();
         for (PaymentAccount p : paymentAccounts){
             payOptions.put(p.GetCardNumber(), p);
         }
