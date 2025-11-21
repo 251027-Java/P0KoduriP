@@ -11,7 +11,6 @@ import java.util.Map;
 import Models.Abstracts.Building;
 import Models.PaymentAccount;
 import Models.Singletons.BuildingHandler;
-import Service.DataService;
 import Service.RequirementService;
 import Util.Time;
 
@@ -225,6 +224,64 @@ public class PostgreDataRepo implements IDataRepository{
         }
 
         return total;
+    }
+
+    @Override
+    public List<String> DisplayGameAccounts() {
+        List<String> accounts = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.profile";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    accounts.add(String.format("(%d) %s", rs.getInt("profid"), rs.getString("profname")));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to display game accounts. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return accounts;
+    }
+
+    @Override
+    public List<Integer> GetGameAccountIDs() {
+        List<Integer> accounts = new ArrayList<>();
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.profile";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()){
+                    accounts.add(rs.getInt("profid"));
+                }
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get game account IDs. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return accounts;
     }
 
     @Override
@@ -800,6 +857,36 @@ public class PostgreDataRepo implements IDataRepository{
     }
 
     @Override
+    public boolean GetPaymentAccountExists(long cardNo, int expMo, int expYr, int pin) {
+        boolean exists = false;
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "select * from data.cc where cardno=? and expmo=? and expyr=? and pin=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setLong(1, cardNo);
+                stmt.setInt(2, expMo);
+                stmt.setInt(3, expYr);
+                stmt.setInt(4, pin);
+
+                exists = stmt.executeQuery().next();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to get if card exists. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+
+        return exists;
+    }
+
+    @Override
     public void AddNewCard(long cardNo, int expMo, int expYr, int pin) {
         boolean successfulInit = false;
 
@@ -1103,7 +1190,7 @@ public class PostgreDataRepo implements IDataRepository{
 
     @Override
     public int GetBalance(long cardNo, int expMo, int expYr, int pin) {
-        int balance = 0;
+        int balance = -1;
         boolean successfulInit = false;
 
         while (!successfulInit) {
@@ -1132,6 +1219,64 @@ public class PostgreDataRepo implements IDataRepository{
         }
 
         return balance;
+    }
+
+    @Override
+    public boolean CreateProfile(int profID, String name) {
+        try {
+            PreparedStatement stmt;
+            String sql;
+            conn.setAutoCommit(false);
+
+            sql = "INSERT INTO data.profile VALUES (?, ?, NOW())";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, profID);
+            stmt.setString(2, name);
+            stmt.executeUpdate();
+
+            sql = "INSERT INTO data.player VALUES (?, NOW(), NOW(), 1000, 0, false, null, NOW())";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, profID);
+            stmt.executeUpdate();
+
+            sql = "INSERT INTO data.playerbuildinglvls VALUES (?, 0, 1, 0, false, NOW())";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, profID);
+            stmt.executeUpdate();
+
+            sql = "INSERT INTO data.playerbuildinglineup VALUES (?, 0, 0)";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, profID);
+            stmt.executeUpdate();
+
+            conn.commit();
+            return true;
+        } catch (Exception e1) {
+            IO.println("Failed to create a new account. Try again: " + e1);
+            try {
+                conn.rollback();
+            } catch (Exception e2) {
+                IO.println("Profile creation rollback failed: " + e2);
+            }
+            return false;
+        }
+        finally {
+            boolean autoComm = false;
+            while (!autoComm) {
+                try {
+                    conn.setAutoCommit(true);
+                    autoComm = true;
+                }
+                catch (Exception e1){
+                    IO.println("Failed to set autocommit to true. Trying again...: " + e1);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e2) {
+                        IO.println("Sleep likely interrupted: " + e2);
+                    }
+                }
+            }
+        }
     }
 
 }

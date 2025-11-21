@@ -16,6 +16,7 @@ public class HomeScreen {
                     PaymentScreen.StartPaymentScreen();
                     break;
                 case 2:
+                    HomeGameScreen.StartHomeGameScreen();
                     break;
             }
         } while (input != 0);

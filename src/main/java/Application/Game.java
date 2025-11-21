@@ -36,7 +36,7 @@ public class Game {
             PostgreReqRepo reqRepo = new PostgreReqRepo(conn, resetReq);
             PostgreDataRepo dataRepo = new PostgreDataRepo(conn, resetData);
 
-            dataServ = new DataService(dataRepo, reqRepo);
+            dataServ = new DataService(dataRepo);
             reqServ = new RequirementService(reqRepo);
 
             Setup();

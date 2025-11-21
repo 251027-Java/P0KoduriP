@@ -8,6 +8,8 @@ import java.util.Map;
 
 public interface IDataRepository extends IRepository {
     public int GetNumberOfProfiles();
+    public List<String> DisplayGameAccounts();
+    public List<Integer> GetGameAccountIDs();
     public String GetCreationDate(int profID);
     public float GetHoursSinceLastAttacked(int profID);
     public float GetHoursSinceLastCollectedResources(int profID);
@@ -27,6 +29,7 @@ public interface IDataRepository extends IRepository {
     public Map<Integer, Integer> GetPlayerArmy(int profID);
 
     public boolean GetPaymentAccountExists(long cardNo);
+    public boolean GetPaymentAccountExists(long cardNo, int expMo, int expYr, int pin);
     public void AddNewCard(long cardNo, int expMo, int expYr, int pin);
     public void DeleteCard(long cardNo, int expMo, int expYr, int pin);
     public List<String> DisplayGameAccountsToAddToCard(long cardNo);
@@ -39,4 +42,6 @@ public interface IDataRepository extends IRepository {
     public void MakeDeposit(int deposit, long cardNo, int expMo, int expYr, int pin);
     public void MakeWithdrawal(int withdrawal, long cardNo, int expMo, int expYr, int pin);
     public int GetBalance(long cardNo, int expMo, int expYr, int pin);
+
+    public boolean CreateProfile(int profID, String name); //true if successful creation, false if not
 }
