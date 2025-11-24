@@ -72,6 +72,9 @@ public class TroopFactoryHandler {
     public String GetTroopName(int troopID){
         return factories.get(troopID).GetTroopName();
     }
+    public int GetLevel(int troopID) {
+        return factories.get(troopID).GetLevel();
+    }
     public int GetResourceID(int troopID){
         return factories.get(troopID).GetResourceID();
     }

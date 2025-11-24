@@ -52,10 +52,10 @@ public class DataService implements IService{
         return dRepo.GetUpgradingTroopID(profID);
     }
     public long GetTroopUpgradeTimeRemainingSeconds(int profID){
-        return dRepo.GetTroopUpgradeTimeRemainingSeconds(profID);
+        return dRepo.GetTroopIsUpgrading(profID) ? dRepo.GetTroopUpgradeTimeRemainingSeconds(profID) : 0;
     }
     public long GetBuildingUpgradeTimeRemainingSeconds(int profID, int buildID){
-        return dRepo.GetBuildingUpgradeTimeRemainingSeconds(profID, buildID);
+        return dRepo.GetBuildingIsUpgrading(profID, buildID) ? dRepo.GetBuildingUpgradeTimeRemainingSeconds(profID, buildID) : 0;
     }
     public List<PaymentAccount> GetPaymentAccounts(int profID){
         return dRepo.GetPaymentAccounts(profID);
@@ -136,6 +136,24 @@ public class DataService implements IService{
     }
     public void SetTrophies(int profID, int trophies){
         dRepo.SetTrophies(profID, trophies);
+    }
+    public void StartTroopUpgrade(int profID, int troopID, int days, int hours, int mins, int secs){
+        dRepo.StartTroopUpgrade(profID, troopID, days, hours, mins, secs);
+    }
+    public void StartBuildingUpgrade(int profID, int buildID, int days, int hours, int mins, int secs){
+        dRepo.StartBuildingUpgrade(profID, buildID, days, hours, mins, secs);
+    }
+    public void FinishTroopUpgrade(int profID, int troopID){
+        if (dRepo.GetTroopIsUpgrading(profID)) dRepo.FinishTroopUpgrade(profID, troopID);
+    }
+    public void FinishBuildingUpgrade(int profID, int buildID){
+        if (dRepo.GetBuildingIsUpgrading(profID, buildID)) dRepo.FinishBuildingUpgrade(profID, buildID);
+    }
+    public void UnlockTroop(int profID, int troopID){
+        dRepo.UnlockTroop(profID, troopID);
+    }
+    public void CreateBuilding(int profID, int buildID, int buildingID, int btid, int pos, int days, int hours, int mins, int secs){
+        dRepo.CreateBuilding(profID, buildID, buildingID, btid, pos, days, hours, mins, secs);
     }
 
     @Override

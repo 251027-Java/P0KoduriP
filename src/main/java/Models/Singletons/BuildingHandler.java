@@ -7,8 +7,7 @@ import Models.Buildings.ResourceCollector;
 import Models.Buildings.ResourceStorage;
 import Service.RequirementService;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BuildingHandler {
     private final static BuildingHandler handler = new BuildingHandler();
@@ -65,5 +64,16 @@ public class BuildingHandler {
 
     public Building GetBuilding(int buildID){
         return buildings.get(buildID);
+    }
+    public Set<Building> GetBuildings(){
+        return new HashSet<>(buildings.values());
+    }
+
+    public int GetHighestBarracksLevel(){
+        int high = 0;
+        for (Building b : buildings.values()){
+            if (b.GetBuildingID() == 2) high = Math.max(high, b.GetLevel()); // Barracks Building ID = 2
+        }
+        return high;
     }
 }

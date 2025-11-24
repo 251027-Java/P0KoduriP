@@ -1,12 +1,12 @@
 package GamePackage;
 
 import Application.Game;
-import Models.Singletons.BuildingHandler;
-import Models.Singletons.GemShop;
-import Models.Singletons.Profile;
-import Models.Singletons.ResourceManager;
+import Models.Abstracts.Building;
+import Models.Singletons.*;
+import Models.TroopFactory;
 import Service.DataService;
 import Util.Screen;
+import Util.Time;
 import Util.UserInput;
 
 public class BaseScreen {
@@ -43,6 +43,29 @@ public class BaseScreen {
         }
         IO.println(Profile.getInstance().GetGems() + " Gems");
 
-        UserInput.GetUserString("\nEnter any key and hit enter to go back and continue", false);
+        UserInput.GetUserString("\nType any key and hit enter to go back and continue", false);
+    }
+
+    private static void DisplayCurrentUpgrades(){
+        IO.println();
+        long troopTime = Profile.getInstance().GetTroopUpgradeTimeRemainingSeconds();
+        if (troopTime == 0) IO.println("No troop is currently upgrading.");
+        else {
+            TroopFactoryHandler handler = TroopFactoryHandler.getInstance();
+            IO.println(String.format("%s: %s", handler.GetTroopName(handler.GetUpgradingTroop()), Time.FormatTime(troopTime)));
+        }
+        IO.println();
+
+        boolean atLeastOne = false;
+        for (Building b : BuildingHandler.getInstance().GetBuildings()){
+            long buildingTime = b.GetBuildingUpgradeTimeRemainingSeconds(Profile.GetID());
+            if (buildingTime > 0){
+                IO.println(String.format("(%d) %s: %s", b.GetBuildID(), b.GetName(), Time.FormatTime(buildingTime)));
+                atLeastOne = true;
+            }
+        }
+        if (!atLeastOne) IO.println("No building is currently upgrading.");
+
+        UserInput.GetUserString("\nType any key and hit enter to go back and continue", false);
     }
 }

@@ -24,10 +24,10 @@ public class Defense extends Building {
     }
 
     public int Attack(){
-        return dmg;
+        return upgrading ? 0 : dmg;
     }
     public float HitSpeed(){
-        return hitspeed;
+        return upgrading ? 0 : hitspeed;
     }
 
     @Override

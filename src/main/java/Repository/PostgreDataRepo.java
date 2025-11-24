@@ -60,23 +60,6 @@ public class PostgreDataRepo implements IDataRepository{
                         PRIMARY KEY (cardno, profid)
                     );
                     
-                    CREATE TABLE IF NOT EXISTS data.playertrooplvls (
-                        profid int,
-                        troopid int,
-                        level int not null check (level >= 1),
-                        CONSTRAINT fk_troopid
-                            FOREIGN KEY (troopid)
-                            REFERENCES req.troop (troopid)
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-                        CONSTRAINT fk_profid
-                            FOREIGN KEY (profid)
-                            REFERENCES data.profile (profid)
-                            ON DELETE CASCADE
-                            ON UPDATE CASCADE,
-                        PRIMARY KEY (troopid, profid)
-                    );
-                    
                     CREATE TABLE IF NOT EXISTS data.player (
                         profid int primary key,
                         lastattacked timestamp not null default current_timestamp, -- the last time the player was attacked
@@ -98,10 +81,27 @@ public class PostgreDataRepo implements IDataRepository{
                             ON UPDATE CASCADE
                     );
                     
+                    CREATE TABLE IF NOT EXISTS data.playertrooplvls (
+                        profid int,
+                        troopid int,
+                        level int not null check (level >= 1),
+                        CONSTRAINT fk_troopid
+                            FOREIGN KEY (troopid)
+                            REFERENCES req.troop (troopid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        CONSTRAINT fk_profid
+                            FOREIGN KEY (profid)
+                            REFERENCES data.profile (profid)
+                            ON DELETE CASCADE
+                            ON UPDATE CASCADE,
+                        PRIMARY KEY (troopid, profid)
+                    );
+                    
                     CREATE TABLE IF NOT EXISTS data.playerbuildinglvls (
                         profid int,
                         buildid int,
-                        level int not null check (level >= 1),
+                        level int not null check (level >= 0),
                         buildingid int not null,
                         isupgrading boolean not null default false,
                         upgradefinishtime timestamp default current_timestamp, -- unknown timestamp if not upgrading
@@ -553,7 +553,7 @@ public class PostgreDataRepo implements IDataRepository{
 
         while (!successfulInit) {
             try {
-                String sql = "SELECT EXTRACT(EPOCH FROM (troopupgradefinishtime - NOW()) AS secs FROM data.player where profid=?;";
+                String sql = "SELECT EXTRACT(EPOCH FROM (troopupgradefinishtime - NOW())) AS secs FROM data.player where profid=?;";
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, profID);
                 ResultSet rs = stmt.executeQuery();
@@ -583,7 +583,7 @@ public class PostgreDataRepo implements IDataRepository{
 
         while (!successfulInit) {
             try {
-                String sql = "SELECT EXTRACT(EPOCH FROM (upgradefinishtime - NOW()) AS secs FROM data.playerbuildinglvls where profid=? and buildid=?;";
+                String sql = "SELECT EXTRACT(EPOCH FROM (upgradefinishtime - NOW())) AS secs FROM data.playerbuildinglvls where profid=? and buildid=?;";
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 stmt.setInt(1, profID);
                 stmt.setInt(2, buildID);
@@ -1357,6 +1357,258 @@ public class PostgreDataRepo implements IDataRepository{
                 successfulInit = true;
             } catch (Exception e) {
                 IO.println("Failed to update # trophies. Trying again...: " + e);
+            }
+        }
+    }
+
+    @Override
+    public void StartTroopUpgrade(int profID, int troopID, int days, int hours, int mins, int secs) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.player set isupgradingtroop=true, upgradingtroopid=?," +
+                        "troopupgradefinishtime = NOW() + " +
+                        "interval '? days ? hours ? minutes ? seconds' where profid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, troopID);
+                stmt.setInt(2, days);
+                stmt.setInt(3, hours);
+                stmt.setInt(4, mins);
+                stmt.setInt(5, secs);
+                stmt.setInt(6, profID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to start troop upgrade. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void StartBuildingUpgrade(int profID, int buildID, int days, int hours, int mins, int secs) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.playerbuildinglvls set isupgrading=true, upgradefinishtime = NOW() + " +
+                        "interval '? days ? hours ? minutes ? seconds' where profid=? and buildid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, days);
+                stmt.setInt(2, hours);
+                stmt.setInt(3, mins);
+                stmt.setInt(4, secs);
+                stmt.setInt(5, profID);
+                stmt.setInt(6, buildID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to start building upgrade. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    public void FinishTroopUpgrade(int profID, int troopID){
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                PreparedStatement stmt;
+                String sql;
+                conn.setAutoCommit(false);
+
+                sql = "update data.player set isupgradingtroop=false where profid=?;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.executeUpdate();
+
+                sql = "update data.playertrooplvls set level=level+1 where profid=? and troopid=?;";
+                stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, troopID);
+                stmt.executeUpdate();
+
+                conn.commit();
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to finish upgrading troop. Try again: " + e1);
+                try {
+                    conn.rollback();
+                } catch (Exception e2) {
+                    IO.println("Troop upgrade finish rollback failed: " + e2);
+                }
+            }
+            finally {
+                boolean autoComm = false;
+                while (!autoComm) {
+                    try {
+                        conn.setAutoCommit(true);
+                        autoComm = true;
+                    }
+                    catch (Exception e1){
+                        IO.println("Failed to set autocommit to true. Trying again...: " + e1);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (Exception e2) {
+                            IO.println("Sleep likely interrupted: " + e2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void FinishBuildingUpgrade(int profID, int buildID){
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                String sql = "update data.playerbuildinglvls set isupgrading=false, level=level+1 " +
+                        "where profid=? and buildid=?;";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, buildID);
+                stmt.executeUpdate();
+
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to finish building upgrade. Trying again...: " + e1);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e2) {
+                    IO.println("Sleep likely interrupted: " + e2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void UnlockTroop(int profID, int troopID) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                PreparedStatement stmt;
+                String sql;
+                conn.setAutoCommit(false);
+
+                sql = "insert into data.playertrooplvls values (?,?,1);";
+                stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, troopID);
+                stmt.executeUpdate();
+
+                sql = "insert into data.playerarmy values (?,?,0);";
+                stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, troopID);
+                stmt.executeUpdate();
+
+                conn.commit();
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to unlock troop. Try again: " + e1);
+                try {
+                    conn.rollback();
+                } catch (Exception e2) {
+                    IO.println("Troop unlock rollback failed: " + e2);
+                }
+            }
+            finally {
+                boolean autoComm = false;
+                while (!autoComm) {
+                    try {
+                        conn.setAutoCommit(true);
+                        autoComm = true;
+                    }
+                    catch (Exception e1){
+                        IO.println("Failed to set autocommit to true. Trying again...: " + e1);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (Exception e2) {
+                            IO.println("Sleep likely interrupted: " + e2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void CreateBuilding(int profID, int buildID, int buildingID, int btid, int pos, int days, int hours, int mins, int secs) {
+        boolean successfulInit = false;
+
+        while (!successfulInit) {
+            try {
+                PreparedStatement stmt;
+                String sql;
+                conn.setAutoCommit(false);
+
+                sql = "insert into data.playerbuildinglvls values (?,?,0,?,true,NOW() + " +
+                    "interval '? days ? hours ? minutes ? seconds');";
+                stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, buildID);
+                stmt.setInt(3, buildingID);
+                stmt.setInt(4, days);
+                stmt.setInt(5, hours);
+                stmt.setInt(6, mins);
+                stmt.setInt(7, secs);
+                stmt.executeUpdate();
+
+                if (btid == 4 || btid == 5) { // btid=4:collector, btid=5:storage
+                    sql = "insert into data.playerresourcebuildings values (?,?,0);";
+                    stmt = conn.prepareStatement(sql);
+                    stmt.setInt(1, profID);
+                    stmt.setInt(2, buildID);
+                    stmt.executeUpdate();
+                }
+
+                sql = "insert into data.playerbuildinglineup values (?,?,?);";
+                stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, profID);
+                stmt.setInt(2, buildID);
+                stmt.setInt(3, pos);
+                stmt.executeUpdate();
+
+                conn.commit();
+                successfulInit = true;
+            } catch (Exception e1) {
+                IO.println("Failed to create building. Trying again...: " + e1);
+                try {
+                    conn.rollback();
+                } catch (Exception e2) {
+                    IO.println("Building creation rollback failed: " + e2);
+                }
+            }
+            finally {
+                boolean autoComm = false;
+                while (!autoComm) {
+                    try {
+                        conn.setAutoCommit(true);
+                        autoComm = true;
+                    }
+                    catch (Exception e1){
+                        IO.println("Failed to set autocommit to true. Trying again...: " + e1);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (Exception e2) {
+                            IO.println("Sleep likely interrupted: " + e2);
+                        }
+                    }
+                }
             }
         }
     }

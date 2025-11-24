@@ -104,25 +104,25 @@ public class PostgreReqRepo implements IRequirementRepository{
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.armycamp (
-                        aclevel int primary key check (aclevel >= 1),
+                        aclevel int primary key check (aclevel >= 0),
                         hp int not null check (hp > 0),
                         maxspace int not null check (maxspace >= 0)
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.lab (
-                        lablevel int primary key check (lablevel >= 1),
+                        lablevel int primary key check (lablevel >= 0),
                         hp int not null check (hp > 0),
-                        maxtrooplevel int not null check (maxtrooplevel >= 0)
+                        maxtrooplevel int not null check (maxtrooplevel >= 1)
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.resgen (
-                        resgenlevel int primary key check (resgenlevel >= 1),
+                        resgenlevel int primary key check (resgenlevel >= 0),
                         hp int not null check (hp > 0),
                         perhr int not null check (perhr >= 0)
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.resstore (
-                        resstorelevel int primary key check (resstorelevel >= 1),
+                        resstorelevel int primary key check (resstorelevel >= 0),
                         hp int not null check (hp > 0),
                         maxcap int not null check (maxcap >= 0)
                     );
@@ -144,7 +144,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     
                     CREATE TABLE IF NOT EXISTS req.defstats (
                         buildingid int not null,
-                        deflevel int check (deflevel >= 1),
+                        deflevel int check (deflevel >= 0),
                         dmg int not null check (dmg >= 0),
                         hp int not null check (hp > 0),
                         CONSTRAINT fk_buildingid
@@ -156,7 +156,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     );
                     
                     CREATE TABLE IF NOT EXISTS req.rax (
-                        raxlevel int primary key check (raxlevel >= 1),
+                        raxlevel int primary key check (raxlevel >= 0),
                         hp int not null check (hp > 0)
                     );
                     
@@ -344,6 +344,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (9, true, 1, 30, false, 0);
                     
                     INSERT INTO req.armycamp VALUES
+                    (0, 500, 0),
                     (1, 500, 20),
                     (2, 700, 25),
                     (3, 1500, 50),
@@ -351,11 +352,13 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (5, 4000, 100);
                     
                     INSERT INTO req.lab VALUES
+                    (0, 750, 1),
                     (1, 750, 2),
                     (2, 1600, 5),
                     (3, 4000, 10);
                     
                     INSERT INTO req.resgen VALUES
+                    (0, 600, 0),
                     (1, 600, 1000),
                     (2, 800, 1200),
                     (3, 1200, 1500),
@@ -368,6 +371,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (10, 5000, 5000);
                     
                     INSERT INTO req.resstore VALUES
+                    (0, 1800, 0),
                     (1, 1800, 20000),
                     (2, 2400, 30000),
                     (3, 3600, 50000),
@@ -386,6 +390,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (7, 2);
                     
                     INSERT INTO req.defstats VALUES
+                    (8, 0, 0, 4000),
                     (8, 1, 60, 4000),
                     (8, 2, 80, 5000),
                     (8, 3, 100, 6000),
@@ -396,6 +401,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (8, 8, 240, 25000),
                     (8, 9, 280, 32000),
                     (8, 10, 350, 40000),
+                    (9, 0, 0, 3000),
                     (9, 1, 25, 3000),
                     (9, 2, 35, 3800),
                     (9, 3, 45, 4500),
@@ -408,6 +414,7 @@ public class PostgreReqRepo implements IRequirementRepository{
                     (9, 10, 160, 32000);
                     
                     INSERT INTO req.rax VALUES
+                    (0, 500),
                     (1, 500),
                     (2, 750),
                     (3, 2000);

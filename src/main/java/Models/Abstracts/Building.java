@@ -85,4 +85,8 @@ public abstract class Building {
     public int GetBuildingTypeID(){
         return btid;
     }
+
+    public String GetName(){
+        return name;
+    }
 }

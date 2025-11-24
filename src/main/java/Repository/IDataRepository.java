@@ -48,4 +48,10 @@ public interface IDataRepository extends IRepository {
     public void SetResourceAmount(int profID, int buildID, int amount);
     public void SetGems(int profID, int gems);
     public void SetTrophies(int profID, int trophies);
+    public void StartTroopUpgrade(int profID, int troopID, int days, int hours, int mins, int secs);
+    public void StartBuildingUpgrade(int profID, int buildID, int days, int hours, int mins, int secs);
+    public void FinishTroopUpgrade(int profID, int troopID);
+    public void FinishBuildingUpgrade(int profID, int buildID);
+    public void UnlockTroop(int profID, int troopID);
+    public void CreateBuilding(int profID, int buildID, int buildingID, int btid, int pos, int days, int hours, int mins, int secs);
 }
