@@ -1,12 +1,11 @@
 package Models.Singletons;
 
 import Application.Game;
-import GamePackage.BaseScreen;
-import GamePackage.HomeGameScreen;
 import Models.Buildings.ResourceCollector;
 import Models.Buildings.ResourceStorage;
 import Service.DataService;
 import Service.RequirementService;
+import Util.Time;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,14 +100,15 @@ public class ResourceManager {
 
         return refund;
     }
-    public void CollectResources(int resourceID){
-        DataService serv = Game.getInstance().GetDataService();
+    public void CollectResources(){
+        UpdateCollectorResourceAmounts();
 
-        for (ResourceCollector rc : collectors.get(resourceID)){
-            rc.RestoreResources(AddResources(resourceID, rc.CollectResources(serv.GetHoursSinceLastCollectedResources(Profile.GetID()))));
+        for (Map.Entry<Integer, List<ResourceCollector>> e : collectors.entrySet()) {
+            int resourceID = e.getKey();
+            for (ResourceCollector rc : e.getValue()) {
+                rc.RestoreResources(AddResources(resourceID, rc.CollectResources(0)));
+            }
         }
-
-        serv.UpdateCollectedResourcesTime(Profile.GetID());
     }
     public boolean SpendResources(int resourceID, int spendAmount){ //returns true if successfully spent, false if not (no change)
         int currAmount = resources.get(resourceID);
@@ -116,6 +116,33 @@ public class ResourceManager {
 
         resources.put(resourceID, currAmount - spendAmount);
         return true;
+    }
+
+    public void UpdateCollectorResourceAmounts(){
+        DataService serv = Game.getInstance().GetDataService();
+
+        float hrs = serv.GetHoursSinceLastUpdatedResourceAmounts(Profile.GetID());
+
+        for (List<ResourceCollector> rcList : collectors.values()){
+            for (ResourceCollector rc : rcList){
+                if (rc.GetUpgrading()){
+                    long rem = serv.GetBuildingUpgradeTimeRemainingSeconds(Profile.GetID(), rc.GetBuildID());
+                    if (rem < 0){
+                        rc.FinishUpgrade();
+                        rc.UpdateResourceAmount(Time.GetHours(-rem));
+                    }
+                }
+                else rc.UpdateResourceAmount(hrs);
+            }
+        }
+
+        serv.UpdateCollectedResourcesTime(Profile.GetID());
+    }
+    public void StartCollectorUpgrade(int buildID){
+        UpdateCollectorResourceAmounts();
+
+        ResourceCollector rc = (ResourceCollector) BuildingHandler.getInstance().GetBuilding(buildID);
+        AddResources(rc.GetResourceGeneratedID(), rc.CollectResources(0));
     }
 
     public static String GetResourceName(int resourceID){

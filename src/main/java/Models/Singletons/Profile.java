@@ -2,7 +2,9 @@ package Models.Singletons;
 
 import Application.Game;
 import Models.PaymentAccount;
+import Models.TroopFactory;
 import Service.DataService;
+import Service.RequirementService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -94,5 +96,23 @@ public class Profile {
         gems += changeGems;
         if (gems < 0) gems = 0;
         Game.getInstance().GetDataService().SetGems(id, gems);
+    }
+
+    public static void Update(){
+        BuildingHandler.getInstance().UpdateUpgrades();
+
+        DataService dServ = Game.getInstance().GetDataService();
+        RequirementService rServ = Game.getInstance().GetRequirementService();
+
+        long rem = dServ.GetTroopUpgradeTimeRemainingSeconds(id);
+        if (rem <= 0 && profile.troopIsUpgrading){
+            dServ.FinishTroopUpgrade(id, profile.upgradingTroop);
+            profile.FinishUpgradingTroop();
+            int level = TroopFactoryHandler.getInstance().GetLevel(profile.upgradingTroop);
+            TroopFactoryHandler.getInstance().SetTroopInfo(profile.upgradingTroop, level + 1,
+                    rServ.GetTroopDamage(profile.upgradingTroop, level + 1),
+                    rServ.GetTroopHP(profile.upgradingTroop, level + 1),
+                    rServ.GetTroopUpgradeInfo(profile.upgradingTroop, level + 1));
+        }
     }
 }

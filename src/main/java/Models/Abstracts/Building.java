@@ -1,6 +1,7 @@
 package Models.Abstracts;
 
 import Application.Game;
+import Models.Singletons.Profile;
 import Util.Models.Upgrade;
 
 public abstract class Building {
@@ -18,7 +19,7 @@ public abstract class Building {
     protected int level;
     protected Upgrade upgrade;
 
-    public boolean upgrading;
+    protected boolean upgrading;
 
     public Building(int buildingID, int buildingTypeID, String buildingName, int resourceID, String resourceName, int maxHealth,
                     int buildingLevel, Upgrade upgradeInfo, boolean currentlyUpgrading, int buildID){
@@ -56,8 +57,13 @@ public abstract class Building {
         hp = maxHP;
     }
 
-    public void Upgrade(){
-
+    public void StartUpgrade(){
+        upgrading = true;
+    }
+    public void FinishUpgrade(){
+        level += 1;
+        upgrading = false;
+        Game.getInstance().GetDataService().FinishBuildingUpgrade(Profile.GetID(), buildid);
     }
     public void SetUpgradingInfo(Upgrade newUpgradeInfo){
         upgrade = newUpgradeInfo;

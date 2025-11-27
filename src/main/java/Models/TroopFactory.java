@@ -78,11 +78,4 @@ public class TroopFactory {
     public int GetResourceID(){
         return rid;
     }
-
-    public void SetUpgradingInfo(Upgrade newUpgradeInfo){
-        upgrade = newUpgradeInfo;
-    }
-    public Upgrade GetUpgradingInfo(){
-        return upgrade;
-    }
 }

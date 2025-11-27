@@ -5,6 +5,8 @@ import Models.Abstracts.Building;
 import Models.Buildings.ArmyCamp;
 import Models.Buildings.ResourceCollector;
 import Models.Buildings.ResourceStorage;
+import Models.Buildings.TownHall;
+import Service.DataService;
 import Service.RequirementService;
 
 import java.util.*;
@@ -75,5 +77,56 @@ public class BuildingHandler {
             if (b.GetBuildingID() == 2) high = Math.max(high, b.GetLevel()); // Barracks Building ID = 2
         }
         return high;
+    }
+
+    public void UpdateUpgrades(){
+        DataService dServ = Game.getInstance().GetDataService();
+        RequirementService rServ = Game.getInstance().GetRequirementService();
+
+        ResourceManager.getInstance().UpdateCollectorResourceAmounts();
+
+        int profID = Profile.GetID();
+
+        for (Map.Entry<Integer, Building> e : buildings.entrySet()){
+            int buildID = e.getKey();
+            Building b = e.getValue();
+
+            long rem = dServ.GetBuildingUpgradeTimeRemainingSeconds(profID, buildID);
+            if (rem <= 0 && b.GetUpgrading()){
+                b.FinishUpgrade();
+                b.SetUpgradingInfo(rServ.GetBuildingUpgradeInfo(b.GetBuildingID(), b.GetLevel() + 1));
+                UpgradeBuilding(profID, buildID, b.GetBuildingTypeID(), b, Game.getInstance().GetRequirementService());
+            }
+        }
+    }
+    private void UpgradeBuilding(int profID, int buildID, int btid, Building b, RequirementService rServ){
+        int level = b.GetLevel();
+        int buildingID = b.GetBuildingID();
+
+        switch (buildingTypeNames.get(btid)){
+            case "TH":
+                buildings.put(buildID, rServ.GetTownHall(buildID, level, buildingID, false));
+                break;
+            case "camp":
+                buildings.put(buildID, rServ.GetArmyCamp(buildID, level, buildingID, false));
+                break;
+            case "rax":
+                buildings.put(buildID, rServ.GetBarracks(buildID, level, buildingID, false));
+                break;
+            case "lab":
+                buildings.put(buildID, rServ.GetLab(buildID, level, buildingID, false));
+                break;
+            case "collector":
+                buildings.put(buildID, rServ.GetCollector(buildID, level, buildingID, false, 0));
+                break;
+            case "storage":
+                buildings.put(buildID, rServ.GetStorage(buildID, level, buildingID, false));
+                break;
+            case "defense":
+                buildings.put(buildID, rServ.GetDefense(buildID, level, buildingID, false));
+                break;
+            default:
+                IO.println(String.format("ERROR: incorrect build type ID (%d) with profID=%d, buildID=%d", btid, profID, buildID));
+        }
     }
 }

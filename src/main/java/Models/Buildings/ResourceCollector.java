@@ -1,7 +1,6 @@
 package Models.Buildings;
 
 import Application.Game;
-import GamePackage.HomeGameScreen;
 import Models.Abstracts.Building;
 import Models.Singletons.Profile;
 import Models.Singletons.ResourceManager;
@@ -22,8 +21,8 @@ public class ResourceCollector extends Building {
     }
 
     @Override
-    public void Upgrade(){
-        super.Upgrade();
+    public void FinishUpgrade(){
+        super.FinishUpgrade();
     }
 
     public int GetResourceGeneratedID(){
@@ -42,16 +41,19 @@ public class ResourceCollector extends Building {
         int newAmount = amount + (int) (hours * genRate);
         int maxCollectorCapacity = GetMaxCapacity();
 
-        if (newAmount > maxCollectorCapacity) newAmount = maxCollectorCapacity;
+        newAmount = Math.min(maxCollectorCapacity, newAmount);
         amount = 0;
         serv.SetResourceAmount(Profile.GetID(), GetBuildID(), amount);
 
         return newAmount;
     }
     public void RestoreResources(int restoreAmount){
-        amount += restoreAmount;
+        amount = Math.min(amount + restoreAmount, GetMaxCapacity());
 
         DataService serv = Game.getInstance().GetDataService();
         serv.SetResourceAmount(Profile.GetID(), GetBuildID(), amount);
+    }
+    public void UpdateResourceAmount(float hours){
+        RestoreResources(CollectResources(hours));
     }
 }

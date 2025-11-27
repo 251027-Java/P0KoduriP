@@ -340,7 +340,7 @@ public class PostgreDataRepo implements IDataRepository{
     }
 
     @Override
-    public float GetHoursSinceLastCollectedResources(int profID) {
+    public float GetHoursSinceLastUpdatedResourceAmounts(int profID) {
         float hours = 0;
         boolean successfulInit = false;
 

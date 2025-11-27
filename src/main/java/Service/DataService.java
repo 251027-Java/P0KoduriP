@@ -3,7 +3,6 @@ package Service;
 import Models.Abstracts.Building;
 import Models.PaymentAccount;
 import Repository.IDataRepository;
-import Repository.IRequirementRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -30,8 +29,8 @@ public class DataService implements IService{
     public float GetHoursSinceLastAttacked(int profID) {
         return dRepo.GetHoursSinceLastAttacked(profID);
     }
-    public float GetHoursSinceLastCollectedResources(int profID) {
-        return dRepo.GetHoursSinceLastCollectedResources(profID);
+    public float GetHoursSinceLastUpdatedResourceAmounts(int profID) {
+        return dRepo.GetHoursSinceLastUpdatedResourceAmounts(profID);
     }
     public String GetPlayerName(int profID){
         return dRepo.GetPlayerName(profID);

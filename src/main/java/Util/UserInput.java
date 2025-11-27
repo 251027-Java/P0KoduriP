@@ -90,6 +90,9 @@ public class UserInput {
         return GetUserString("Are you sure what you entered is okay? (0: No, 1: Yes)", false,
                 s -> s.equals("0") || s.equals("1")).equals("1");
     }
+    public static void UserPressAnyKeyToContinue(){
+        GetUserString("\nType any key and hit enter to continue.", false);
+    }
 
     public static void CloseScanner(){
         scan.close();

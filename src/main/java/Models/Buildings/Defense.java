@@ -31,7 +31,7 @@ public class Defense extends Building {
     }
 
     @Override
-    public void Upgrade(){
-        super.Upgrade();
+    public void FinishUpgrade(){
+        super.FinishUpgrade();
     }
 }

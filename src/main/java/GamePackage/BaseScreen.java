@@ -3,7 +3,6 @@ package GamePackage;
 import Application.Game;
 import Models.Abstracts.Building;
 import Models.Singletons.*;
-import Models.TroopFactory;
 import Service.DataService;
 import Util.Screen;
 import Util.Time;
@@ -43,7 +42,7 @@ public class BaseScreen {
         }
         IO.println(Profile.getInstance().GetGems() + " Gems");
 
-        UserInput.GetUserString("\nType any key and hit enter to go back and continue", false);
+        UserInput.UserPressAnyKeyToContinue();
     }
 
     private static void DisplayCurrentUpgrades(){
@@ -66,6 +65,6 @@ public class BaseScreen {
         }
         if (!atLeastOne) IO.println("No building is currently upgrading.");
 
-        UserInput.GetUserString("\nType any key and hit enter to go back and continue", false);
+        UserInput.UserPressAnyKeyToContinue();
     }
 }

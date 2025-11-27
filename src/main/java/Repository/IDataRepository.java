@@ -12,7 +12,7 @@ public interface IDataRepository extends IRepository {
     public List<Integer> GetGameAccountIDs();
     public String GetCreationDate(int profID);
     public float GetHoursSinceLastAttacked(int profID);
-    public float GetHoursSinceLastCollectedResources(int profID);
+    public float GetHoursSinceLastUpdatedResourceAmounts(int profID);
     public String GetPlayerName(int profID);
     public int GetGems(int profID);
     public int GetTrophies(int profID);

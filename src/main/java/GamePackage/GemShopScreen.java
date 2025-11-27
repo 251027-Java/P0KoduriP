@@ -41,7 +41,8 @@ public class GemShopScreen {
                 if (input != -1) Purchase(accounts.get(input));
             }
             else {
-                UserInput.GetUserString("You have no payment accounts attached. Type any key and hit enter to exit", false);
+                IO.println("You have no payment accounts attached.");
+                UserInput.UserPressAnyKeyToContinue();
                 input = -1;
             }
         } while (input != -1);
@@ -69,7 +70,8 @@ public class GemShopScreen {
                     n -> n == -1 || prices.contains(n));
         }
         else {
-            UserInput.GetUserString("You don't have enough money to buy any gems. Type any key and hit enter to go back", false);
+            IO.println("You don't have enough money to buy any gems.");
+            UserInput.UserPressAnyKeyToContinue();
             usd = -1;
         }
 
@@ -82,6 +84,6 @@ public class GemShopScreen {
         IO.println("Your new balance (#" + pa.GetCardNumber() + ") is $" + pa.GetBalance() + ".");
         IO.println("You now have " + Profile.getInstance().GetGems() + " gems.");
 
-        UserInput.GetUserString("\nEnter any key and hit enter to go back and continue", false);
+        UserInput.UserPressAnyKeyToContinue();
     }
 }

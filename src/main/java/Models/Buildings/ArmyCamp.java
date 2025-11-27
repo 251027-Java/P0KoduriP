@@ -12,8 +12,8 @@ public class ArmyCamp extends Building {
     }
 
     @Override
-    public void Upgrade() {
-        super.Upgrade();
+    public void FinishUpgrade() {
+        super.FinishUpgrade();
     }
 
     public int GetMaxSpace(){
